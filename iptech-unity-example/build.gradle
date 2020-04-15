@@ -1,0 +1,30 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath group: 'com.iptech.gradle', name: 'iptech-unity-plugin', version:'0.1.0'
+    }
+}
+
+apply plugin: 'com.iptech.gradle.unity-plugin'
+
+
+unity {
+    unityProductName 'ExampleGame'
+    unityCmdPath '/Applications/Unity/HUB/Editor/2018.4.17f1/Unity.app/Contents/MacOS/Unity'
+    buildNumber = '0002'
+    buildTypes {
+        DebugAndroid {
+            platform 'Android'
+            steps {
+                importProject
+                runEditModeTests
+                runPlayModeTests
+                execUnityMethod 'BuildScript.HelloWorld'
+            }
+        }
+    }
+}

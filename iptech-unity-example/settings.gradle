@@ -1,0 +1,2 @@
+rootProject.name = 'iptech-unity-example'
+includeBuild '../iptech-unity-plugin'

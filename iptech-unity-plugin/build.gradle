@@ -1,0 +1,33 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+version = '0.1.0'
+group 'com.iptech.gradle'
+description = 'A plugin that will execute scripts and build Unity projects'
+
+gradlePlugin {
+    plugins {
+        unityPlugin {
+            id = 'com.iptech.gradle.unity-plugin'
+            displayName = 'IPTech Unity Plugin'
+            description = 'A plugin that will execute scripts and build Unity projects'
+            implementationClass = 'com.iptech.gradle.unity.UnityPlugin'
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation 'gradle.plugin.com.iptech.gradle:iptech-nunit-plugin:0.1.0'
+}
