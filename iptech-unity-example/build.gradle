@@ -15,7 +15,7 @@ apply plugin: 'com.iptech.gradle.unity-plugin'
 unity {
     unityProductName 'ExampleGame'
     unityCmdPath '/Applications/Unity/HUB/Editor/2018.4.17f1/Unity.app/Contents/MacOS/Unity'
-    buildNumber = '0002'
+    buildNumber = '0001'
     buildTypes {
         DebugAndroid {
             platform 'Android'

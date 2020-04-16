@@ -7,29 +7,35 @@ import com.iptech.gradle.unity.internal.BuildStepManager
 import org.gradle.api.*
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import org.gradle.process.ExecResult
 import org.gradle.util.ConfigureUtil
 import com.iptech.gradle.unity.tasks.*
 
 class UnityExtension {
-    final Project project
+    @Internal final Project project
     private Task validateConfigurationTask
 
-    BuildStepManager buildStepManager
+    @Internal BuildStepManager buildStepManager
 
-    String unityProductName  //TODO: potentially read this from the project settings
-    String unityCmdPath
-    String unityUserName
-    String unityPassword
-    String mirroredUnityProject = 'MirroredUnityProject'
-    String mirroredPathRoot = 'buildCache'
-    Boolean disableUnityCacheSrv = true
-    String androidIL2CPPFlag = true
+    @Input String unityProductName  //TODO: potentially read this from the project settings
+    @Input String unityCmdPath
+    @Input String unityUserName
+    @Input String unityPassword
+    @Input String mirroredUnityProject = 'MirroredUnityProject'
+    @Input String mirroredPathRoot = 'buildCache'
+    @Input Boolean disableUnityCacheSrv = true
+    @Input String androidIL2CPPFlag = true
 
-    String buildNumber
-    String branch
-    FileTree mainUnityProjectFileTree
+    @Input String buildNumber
+    @Input @Optional String branch
+    @InputFiles FileTree mainUnityProjectFileTree
 
+    @Nested
     final NamedDomainObjectContainer<BuildConfig> buildTypes
 
     UnityExtension(Project project, BuildStepManager buildStepManager) {
@@ -47,13 +53,14 @@ class UnityExtension {
     }
 
     void initializePropertyValues() {
+        buildNumber = '0000'
         //TODO: change these properties to be more gradle like?
         unityUserName = project.hasProperty('UNITY_USERNAME') ? project.getProperty('UNITY_USERNAME') : null
         unityPassword = project.hasProperty('UNITY_PASSWORD') ? project.getProperty('UNITY_PASSWORD') : null
 
         mainUnityProjectFileTree = project.fileTree(
             dir: project.projectDir,
-            include: ['Assets/**', 'ProjectSettings/**', 'AssetManifest.xml', 'Packages/**']
+            include: ['Assets/**', 'ProjectSettings/**', 'Packages/**']
         )
     }
 
@@ -66,6 +73,7 @@ class UnityExtension {
         })
     }
 
+    @Input
     String getAppVersion() {
         String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
         def matcher = projectSettings =~ /(?m)bundleVersion: ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
@@ -93,7 +101,9 @@ class UnityExtension {
             d.description 'Deletes the unity build cache directory'
             d.delete this.mirroredPathRoot
         }
-        validateConfigurationTask = ValidateConfig.create(project, this)
+        validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig) {
+            unityExtension = this
+        }
     }
 
     private void addBuildAllRule(Project project) {

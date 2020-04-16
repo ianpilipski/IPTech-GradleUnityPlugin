@@ -1,38 +1,35 @@
 package com.iptech.gradle.unity.tasks
 
 import com.iptech.gradle.unity.UnityExtension
+import com.iptech.gradle.unity.api.UnityExecSpec
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
-class ValidateConfig {
-    static Task create(Project project, UnityExtension config) {
+class ValidateConfig extends DefaultTask {
+    @Nested
+    final Property<UnityExtension> unityExtension = project.objects.property(UnityExtension)
 
-        Task retVal = project.tasks.create("validateUnityPluginConfiguration", new Action<Task>() {
-            @Override
-            void execute(Task t1) {
-                t1.doLast(new Action<Task>() {
-                    @Override
-                    void execute(Task task2) {
-                        println "Validating Unity Plugin Configuration"
-                        LogAndAssertNotNullOrEmpty(config.unityProductName, 'unityProductName')
-                        LogAndAssertNotNullOrEmpty(config.unityCmdPath, 'unityCmdPath')
-                        ValidateUserNamePassword(config)
-                        LogAndAssertNotNullOrEmpty(config.appVersion.toString(), 'appVersion')
-                        //TODO: is this required?
-                        LogAndAssertNotNullOrEmpty(config.buildNumber, 'buildNumber')
-                        LogAndAssertNotNullOrEmpty(config.mirroredPathRoot, 'mirroredPathRoot')
-                        LogAndAssertNotNullOrEmpty(config.mirroredUnityProject, 'mirroredUnityProject')
-                        AssertUnityExecutableExists(project, config.unityCmdPath)
-                    }
-                })
-            }
-        })
-
-        return retVal
+    @TaskAction
+    void execute() {
+        UnityExtension config = this.unityExtension.get()
+        println "Validating Unity Plugin Configuration"
+        LogAndAssertNotNullOrEmpty(config.unityProductName, 'unityProductName')
+        LogAndAssertNotNullOrEmpty(config.unityCmdPath, 'unityCmdPath')
+        ValidateUserNamePassword(config)
+        LogAndAssertNotNullOrEmpty(config.appVersion.toString(), 'appVersion')
+        //TODO: is this required?
+        LogAndAssertNotNullOrEmpty(config.buildNumber, 'buildNumber')
+        LogAndAssertNotNullOrEmpty(config.mirroredPathRoot, 'mirroredPathRoot')
+        LogAndAssertNotNullOrEmpty(config.mirroredUnityProject, 'mirroredUnityProject')
+        AssertUnityExecutableExists(project, config.unityCmdPath)
     }
 
     static void ValidateUserNamePassword(UnityExtension config) {
