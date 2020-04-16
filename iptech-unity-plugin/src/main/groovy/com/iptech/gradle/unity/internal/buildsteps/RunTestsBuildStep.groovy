@@ -28,6 +28,12 @@ class RunTestsBuildStep implements BuildStep {
     private Task createTestTask(String testPlatform, String taskPrefix, BuildConfig buildConfig) {
         Project project = buildConfig.unity.project
         Task t = project.tasks.create(taskPrefix) {
+            inputs.files(project.provider({
+                project.fileTree(dir: buildConfig.mirrordProjectPath, includes: ['Assets/**', 'ProjectSettings/**', 'Packages/**'])
+            }))
+
+            outputs.file(project.provider({ "${buildConfig.artifactDir}/${taskPrefix}.xml" }))
+
             doLast {
                 String resultFile = "${buildConfig.artifactDir}/${taskPrefix}.xml"
                 ExecResult execResult = buildConfig.execUnity(new Action<UnityExecSpec>() {

@@ -24,6 +24,7 @@ unity {
                 runEditModeTests
                 runPlayModeTests
                 execUnityMethod 'BuildScript.HelloWorld'
+                execUnityMethod 'BuildScript.WithArguments', '-Hello', 'World'
             }
         }
     }

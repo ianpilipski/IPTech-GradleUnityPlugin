@@ -19,14 +19,6 @@ class MirrorProject extends DefaultTask {
     @Nested
     final Property<BuildConfig> buildConfig = project.objects.property(BuildConfig)
 
-    /*
-    @Nested
-    Provider<BuildConfig> getBuildConfig() {
-        return buildConfig
-    }
-
-     */
-
     @InputFiles
     FileTree getUnityFileTree() {
         return buildConfig.get().unity.mainUnityProjectFileTree
@@ -40,7 +32,6 @@ class MirrorProject extends DefaultTask {
     @TaskAction
     void exec() {
         mirrorUnityProject()
-        CreateOutputFile()
     }
 
     private void mirrorUnityProject() {
@@ -62,14 +53,5 @@ class MirrorProject extends DefaultTask {
                 mirrorSpec.into buildConfig.get().mirrordProjectPath
             }
         })
-    }
-
-    void CreateOutputFile() {
-        File upToDateFile = project.file( "${buildConfig.get().logDir}/mirroredInfo.txt")
-        if(!upToDateFile.exists()) {
-            project.mkdir(buildConfig.get().logDir)
-            upToDateFile.createNewFile()
-        }
-        upToDateFile.text = new Date().toString()
     }
 }

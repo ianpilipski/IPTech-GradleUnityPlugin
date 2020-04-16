@@ -6,6 +6,7 @@ import com.iptech.gradle.unity.api.UnityExecSpec
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.FileTree
 
 class ImportProjectBuildStep implements BuildStep {
 
@@ -18,6 +19,14 @@ class ImportProjectBuildStep implements BuildStep {
     Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
         Project project = buildConfig.unity.project
         Task t = project.task(taskPrefix) {
+            inputs.files(project.provider({
+                project.fileTree(dir: buildConfig.mirrordProjectPath.path, includes: ['Assets/**', 'ProjectSettings/**', 'Packages/**'])
+            }))
+
+            outputs.dir(project.provider({
+                project.file"${buildConfig.mirrordProjectPath}/Library"
+            }))
+
             doLast {
                 // This will force the re-compilation of script files
                 project.delete "${buildConfig.mirrordProjectPath}/Library/ScriptAssemblies"
