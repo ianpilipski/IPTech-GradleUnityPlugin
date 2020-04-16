@@ -23,8 +23,15 @@ unity {
                 importProject
                 runEditModeTests
                 runPlayModeTests
-                execUnityMethod 'BuildScript.HelloWorld'
-                execUnityMethod 'BuildScript.WithArguments', '-Hello', 'World'
+                execUnityMethod('BuildScript.HelloWorld') { Task t ->
+                    t.outputs.dir('build') // this will give this task incremental support.. normally you would put your outputs here.
+                    t.doLast {
+                        println 'example of extending the task'
+                    }
+                }
+                execUnityMethod('BuildScript.WithArguments', '-Hello', 'World') {
+                    outputs.dir('build')
+                }
             }
         }
     }

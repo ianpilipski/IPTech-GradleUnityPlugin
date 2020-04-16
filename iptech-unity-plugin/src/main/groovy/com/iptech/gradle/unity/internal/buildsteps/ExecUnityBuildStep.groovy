@@ -19,10 +19,15 @@ class ExecUnityBuildStep implements BuildStep {
         if(stepName == 'execUnity') {
             return [createExecUnity(taskPrefix, buildConfig, ConfigureUtil.configureUsing((Closure)args[0]))]
         } else {
-            List<String> additionalArgs = (List<String>) args
-            String staticMethod = additionalArgs.get(0)
-            additionalArgs.remove(0)
-            return [createExecUnityMethod(taskPrefix, buildConfig, staticMethod, additionalArgs)]
+            List<Object> argObjs = (List<Object>)args
+            String staticMethod = (String)argObjs.remove(0)
+            Closure configureClosure
+            if(argObjs && argObjs.last() instanceof Closure) {
+                configureClosure = (Closure)argObjs.removeLast()
+            }
+            List<String> additionalArgs = (List<Object>)argObjs
+
+            return [createExecUnityMethod(taskPrefix, buildConfig, staticMethod, additionalArgs, configureClosure)]
         }
     }
 
@@ -37,7 +42,7 @@ class ExecUnityBuildStep implements BuildStep {
         }
     }
 
-    Task createExecUnityMethod(String taskPrefix, BuildConfig buildConfig, String staticMethod, List<String> additionalArgs) {
+    Task createExecUnityMethod(String taskPrefix, BuildConfig buildConfig, String staticMethod, List<String> additionalArgs, Closure configureClosure) {
         return buildConfig.unity.project.tasks.create(taskPrefix) {
             doLast {
                 buildConfig.execUnity(new Action<UnityExecSpec>() {
@@ -47,10 +52,19 @@ class ExecUnityBuildStep implements BuildStep {
                                 '-batchmode', '-quit', '-nographics',
                                 '-executeMethod', staticMethod
                         ]
-                        if(additionalArgs?.size()>0) args.addAll(additionalArgs)
+                        if(additionalArgs?.size()>0) {
+
+                            args.addAll(additionalArgs)
+                        }
                         unityExecSpec.arguments(args)
                     }
                 })
+            }
+
+            if(configureClosure) {
+                configureClosure.delegate = delegate
+                configureClosure.resolveStrategy = Closure.DELEGATE_FIRST
+                configureClosure.call(delegate)
             }
         }
     }

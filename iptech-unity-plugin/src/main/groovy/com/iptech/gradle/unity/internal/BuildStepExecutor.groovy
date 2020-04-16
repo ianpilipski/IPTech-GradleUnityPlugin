@@ -33,12 +33,18 @@ class BuildStepExecutor {
 
     @Override
     Object getProperty(String name) {
-        if(!tryExecBuildStep(name, null)) {
-            return metaClass.getProperty(this, name)
+        //println "getProperty: $name"
+        MetaProperty property = metaClass.hasProperty(this, name)
+        if(property) {
+            return property.getProperty(this)
         }
+
+        tryExecBuildStep(name, null)
+        return null
     }
 
     private Boolean tryExecBuildStep(String name, Object args) {
+        //println "tryExecBuildStep: ${name} args: $args"
         if(buildStepManager.hasBuildStep(name)) {
             BuildStep bs = buildStepManager.getBuildStep(name)
             stepCount++
