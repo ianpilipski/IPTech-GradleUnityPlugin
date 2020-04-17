@@ -1,8 +1,5 @@
 package com.iptech.gradle.unity.internal
 
-import groovy.transform.CompileStatic
-
-@CompileStatic
 class UnityLog {
     private File logFile
 

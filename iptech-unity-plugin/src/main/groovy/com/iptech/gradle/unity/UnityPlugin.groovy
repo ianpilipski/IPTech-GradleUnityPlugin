@@ -4,11 +4,9 @@ import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.buildsteps.ExecUnityBuildStep
 import com.iptech.gradle.unity.internal.buildsteps.ImportProjectBuildStep
 import com.iptech.gradle.unity.internal.buildsteps.RunTestsBuildStep
-import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 
-@CompileStatic
 class UnityPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

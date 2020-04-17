@@ -1,8 +1,5 @@
 package com.iptech.gradle.unity.api
 
-import groovy.transform.CompileStatic
-
-@CompileStatic
 interface UnityExecSpec {
     void arguments(List<String> arguments)
     void projectPath(String projectPath)

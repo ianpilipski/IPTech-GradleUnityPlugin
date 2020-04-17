@@ -4,20 +4,21 @@ import com.iptech.gradle.unity.UnityExtension
 import com.iptech.gradle.unity.api.UnityExecSpec
 import com.iptech.gradle.unity.internal.DefaultUnityExecSpec
 import com.iptech.gradle.unity.internal.UnityLog
-import groovy.transform.CompileStatic
 import org.gradle.api.Action
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.tasks.*
-import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
 
-@CompileStatic
 class ExecUnity extends DefaultTask {
     protected ExecResult _execResult
 
@@ -127,6 +128,5 @@ class ExecUnity extends DefaultTask {
                 }
             }
         })
-
     }
 }

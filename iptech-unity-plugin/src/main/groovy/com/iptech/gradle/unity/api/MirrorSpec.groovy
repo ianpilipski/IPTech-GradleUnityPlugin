@@ -1,12 +1,10 @@
 package com.iptech.gradle.unity.api
 
-import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.util.PatternFilterable
 
-@CompileStatic
 interface MirrorSpec {
     void from(Object file)
     void into(Object file)

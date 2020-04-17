@@ -25,7 +25,7 @@ class ValidateConfig extends DefaultTask {
         LogAndAssertNotNullOrEmpty(config.mirroredPathRoot        , 'mirroredPathRoot')
         LogAndAssertNotNullOrEmpty(config.mirroredUnityProject    , 'mirroredUnityProject')
         LogAndAssertNotNullOrEmpty(config.mainUnityProjectFileTree, 'mainUnityProjectFileTree')
-        
+
         AssertUnityExecutableExists(project, config.unityCmdPath)
     }
 

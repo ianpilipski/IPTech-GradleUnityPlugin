@@ -11,7 +11,6 @@ import org.gradle.api.*
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.tasks.*
 import org.gradle.process.ExecResult
-import org.gradle.util.ConfigureUtil
 
 class UnityExtension {
     @Internal final Project project
@@ -85,10 +84,6 @@ class UnityExtension {
                 project.objects.newInstance(BuildConfig, name, self)
             }
         })
-    }
-
-    ExecResult exec(Closure closure) {
-        return exec(ConfigureUtil.configureUsing(closure))
     }
 
     ExecResult exec(Action<? super UnityExecSpec> action) {

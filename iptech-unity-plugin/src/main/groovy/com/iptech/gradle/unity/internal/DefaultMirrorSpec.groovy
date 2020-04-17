@@ -1,8 +1,7 @@
 package com.iptech.gradle.unity.internal
 
-import com.iptech.gradle.unity.UnityExtension
+
 import com.iptech.gradle.unity.api.MirrorSpec
-import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.FileTreeElement
@@ -12,7 +11,6 @@ import org.gradle.api.tasks.util.PatternSet
 
 import javax.inject.Inject
 
-@CompileStatic
 class DefaultMirrorSpec implements MirrorSpec {
     private final Project project
 

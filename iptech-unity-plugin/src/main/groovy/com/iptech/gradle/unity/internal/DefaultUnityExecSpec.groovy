@@ -1,9 +1,7 @@
 package com.iptech.gradle.unity.internal
 
 import com.iptech.gradle.unity.api.UnityExecSpec
-import groovy.transform.CompileStatic
 
-@CompileStatic
 class DefaultUnityExecSpec implements UnityExecSpec {
     List<String> arguments
     String projectPath
