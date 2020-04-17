@@ -1,18 +1,13 @@
 package com.iptech.gradle.unity.tasks
 
 import com.iptech.gradle.unity.UnityExtension
-import com.iptech.gradle.unity.api.UnityExecSpec
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskAction
 
-@CompileStatic
 class ValidateConfig extends DefaultTask {
     @Nested
     final Property<UnityExtension> unityExtension = project.objects.property(UnityExtension)
@@ -21,14 +16,15 @@ class ValidateConfig extends DefaultTask {
     void execute() {
         UnityExtension config = this.unityExtension.get()
         println "Validating Unity Plugin Configuration"
-        LogAndAssertNotNullOrEmpty(config.unityProductName, 'unityProductName')
+
+        LogAndAssertNotNullOrEmpty(config.productName, 'productName')
         LogAndAssertNotNullOrEmpty(config.unityCmdPath, 'unityCmdPath')
         ValidateUserNamePassword(config)
         LogAndAssertNotNullOrEmpty(config.appVersion.toString(), 'appVersion')
-        //TODO: is this required?
         LogAndAssertNotNullOrEmpty(config.buildNumber, 'buildNumber')
         LogAndAssertNotNullOrEmpty(config.mirroredPathRoot, 'mirroredPathRoot')
         LogAndAssertNotNullOrEmpty(config.mirroredUnityProject, 'mirroredUnityProject')
+        LogAndAssertNotNullOrEmpty(config.mainUnityProjectFileTree, 'mainUnityProjectFileTree')
         AssertUnityExecutableExists(project, config.unityCmdPath)
     }
 
@@ -44,9 +40,17 @@ class ValidateConfig extends DefaultTask {
         }
     }
 
-    static void LogAndAssertNotNullOrEmpty(String value, String propertyName) {
-        println "== ${propertyName} = ${value}"
-        AssertNotNullOrEmpty(value, propertyName)
+    static void LogAndAssertNotNullOrEmpty(Object value, String propertyName) {
+        if(!value) {
+            AssertNotNullOrEmpty("", propertyName)
+        } else {
+            if(value instanceof String) {
+                println "== ${propertyName} = ${value}"
+                AssertNotNullOrEmpty(value, propertyName)
+            } else {
+                println "== ${propertyName} = <${value.class.simpleName}>"
+            }
+        }
     }
 
     static void AssertNotNullOrEmpty(String value, String propertyName) {

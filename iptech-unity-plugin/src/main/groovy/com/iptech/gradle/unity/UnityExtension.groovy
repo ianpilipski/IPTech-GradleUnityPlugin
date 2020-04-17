@@ -19,17 +19,13 @@ class UnityExtension {
 
     @Internal BuildStepManager buildStepManager
 
-    @Input String unityProductName  //TODO: potentially read this from the project settings
+    @Input String productName
     @Input String unityCmdPath
     @Input String unityUserName
     @Input String unityPassword
     @Input String mirroredUnityProject = 'MirroredUnityProject'
     @Input String mirroredPathRoot = 'buildCache'
-    @Input Boolean disableUnityCacheSrv = true
-    @Input String androidIL2CPPFlag = true
-
     @Input String buildNumber
-    @Input @Optional String branch
     @InputFiles ConfigurableFileTree mainUnityProjectFileTree
 
     @Nested
@@ -50,7 +46,10 @@ class UnityExtension {
     }
 
     void initializePropertyValues() {
+        initializeProjectName()
+
         buildNumber = '0000'
+
         //TODO: change these properties to be more gradle like?
         unityUserName = project.hasProperty('UNITY_USERNAME') ? project.getProperty('UNITY_USERNAME') : null
         unityPassword = project.hasProperty('UNITY_PASSWORD') ? project.getProperty('UNITY_PASSWORD') : null
@@ -59,6 +58,14 @@ class UnityExtension {
             dir: project.projectDir,
             include: ['Assets/**', 'ProjectSettings/**', 'Packages/**']
         )
+    }
+
+    private void initializeProjectName() {
+        String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
+        def matcher = projectSettings =~ /(?m)productName: (.*)?/
+        if(matcher.getCount()>0) {
+            productName = matcher[0][1]
+        }
     }
 
     private NamedDomainObjectContainer<BuildConfig> CreateBuildConfigContainerWithFactory(Project project) {
@@ -73,7 +80,7 @@ class UnityExtension {
     @Input
     String getAppVersion() {
         String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
-        def matcher = projectSettings =~ /(?m)bundleVersion: ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+        def matcher = projectSettings =~ /(?m)bundleVersion: ([0-9\.]+)?/
         if(matcher.getCount()>0) {
             return matcher[0][1]
         }
