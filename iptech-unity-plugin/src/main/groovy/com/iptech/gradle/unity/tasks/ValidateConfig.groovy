@@ -10,28 +10,29 @@ import org.gradle.api.tasks.TaskAction
 
 class ValidateConfig extends DefaultTask {
     @Nested
-    final Property<UnityExtension> unityExtension = project.objects.property(UnityExtension)
+    final Property<UnityExtension> unity = project.objects.property(UnityExtension)
 
     @TaskAction
     void execute() {
-        UnityExtension config = this.unityExtension.get()
+        UnityExtension config = this.unity.get()
         println "Validating Unity Plugin Configuration"
 
-        LogAndAssertNotNullOrEmpty(config.productName, 'productName')
-        LogAndAssertNotNullOrEmpty(config.unityCmdPath, 'unityCmdPath')
+        LogAndAssertNotNullOrEmpty(config.productName             , 'productName')
+        LogAndAssertNotNullOrEmpty(config.bundleVersion           , 'bundleVersion')
+        LogAndAssertNotNullOrEmpty(config.unityCmdPath            , 'unityCmdPath')
         ValidateUserNamePassword(config)
-        LogAndAssertNotNullOrEmpty(config.appVersion.toString(), 'appVersion')
-        LogAndAssertNotNullOrEmpty(config.buildNumber, 'buildNumber')
-        LogAndAssertNotNullOrEmpty(config.mirroredPathRoot, 'mirroredPathRoot')
-        LogAndAssertNotNullOrEmpty(config.mirroredUnityProject, 'mirroredUnityProject')
+        LogAndAssertNotNullOrEmpty(config.buildNumber             , 'buildNumber')
+        LogAndAssertNotNullOrEmpty(config.mirroredPathRoot        , 'mirroredPathRoot')
+        LogAndAssertNotNullOrEmpty(config.mirroredUnityProject    , 'mirroredUnityProject')
         LogAndAssertNotNullOrEmpty(config.mainUnityProjectFileTree, 'mainUnityProjectFileTree')
+        
         AssertUnityExecutableExists(project, config.unityCmdPath)
     }
 
     static void ValidateUserNamePassword(UnityExtension config) {
-        println "== unityUserName = ${config.unityUserName}"
-        println "== unityPassword = ${config.unityPassword ? '(hidden)' : 'null'}"
-        if(!config.unityUserName || !config.unityPassword) {
+        println "== unity.userName = ${config.userName}"
+        println "== unity.password = ${config.password ? '(hidden)' : 'null'}"
+        if(!config.userName || !config.password) {
             throw new GradleException(
                     "\n\nYou must supply a unity username/password in your ~/.gradle/gradle.properties file:\n\n" +
                             "UNITY_USERNAME=<yourunitylogin@youremail.com>\n" +
@@ -45,17 +46,17 @@ class ValidateConfig extends DefaultTask {
             AssertNotNullOrEmpty("", propertyName)
         } else {
             if(value instanceof String) {
-                println "== ${propertyName} = ${value}"
+                println "== unity.${propertyName} = ${value}"
                 AssertNotNullOrEmpty(value, propertyName)
             } else {
-                println "== ${propertyName} = <${value.class.simpleName}>"
+                println "== unity.${propertyName} = <${value.class.simpleName}>"
             }
         }
     }
 
     static void AssertNotNullOrEmpty(String value, String propertyName) {
         if(!(value?.trim())) {
-            throw new GradleException("The ${propertyName} is not set to a value.. this is required.")
+            throw new GradleException("The unity.${propertyName} is not set to a value.. this is required.")
         }
     }
 

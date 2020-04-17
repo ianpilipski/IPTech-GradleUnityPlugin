@@ -2,7 +2,6 @@ package com.iptech.gradle.unity.api
 
 import com.iptech.gradle.unity.UnityExtension
 import org.gradle.api.Action
-import org.gradle.api.DomainObjectCollection
 import org.gradle.api.DomainObjectSet
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -54,12 +53,12 @@ class BuildConfig {
 
     @OutputDirectory
     File getLogDir() {
-        return unity.project.file("${unity.project.buildDir}/${this.name}-${unity.appVersion}-${unity.buildNumber}/logs")
+        return unity.project.file("${unity.project.buildDir}/${this.name}-${unity.bundleVersion}-${unity.buildNumber}/logs")
     }
 
     @OutputDirectory
     File getArtifactDir() {
-        return unity.project.file( "${unity.project.buildDir}/${this.name}-${unity.appVersion}-${unity.buildNumber}/artifacts")
+        return unity.project.file( "${unity.project.buildDir}/${this.name}-${unity.bundleVersion}-${unity.buildNumber}/artifacts")
     }
 
 

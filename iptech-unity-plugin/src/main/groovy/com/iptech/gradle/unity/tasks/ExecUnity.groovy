@@ -16,7 +16,6 @@ import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask
 import org.gradle.process.ExecResult
 import org.gradle.process.ExecSpec
-import org.gradle.util.ConfigureUtil
 
 @CompileStatic
 class ExecUnity extends DefaultTask {
@@ -37,8 +36,8 @@ class ExecUnity extends DefaultTask {
     ExecUnity() {
         UnityExtension unity = (UnityExtension)project.extensions.getByName('unity')
         ignoreExitValue.set(false)
-        userName.convention(project.provider({unity.unityUserName}))
-        password.convention(project.provider({unity.unityPassword}))
+        userName.convention(project.provider({unity.userName}))
+        password.convention(project.provider({unity.password}))
         unityCmdPath.convention(project.provider( {unity.unityCmdPath}))
         environment.convention(project.provider( {[:] << System.getenv()}))
     }
@@ -86,8 +85,8 @@ class ExecUnity extends DefaultTask {
 
         DefaultUnityExecSpec spec = new DefaultUnityExecSpec()
         spec.unityCmdPath = unity.unityCmdPath
-        spec.userName = unity.unityUserName
-        spec.password = unity.unityPassword
+        spec.userName = unity.userName
+        spec.password = unity.password
         action.execute(spec)
 
         List<String> argList = []

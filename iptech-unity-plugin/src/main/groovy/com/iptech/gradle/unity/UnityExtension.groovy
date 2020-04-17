@@ -20,9 +20,10 @@ class UnityExtension {
     @Internal BuildStepManager buildStepManager
 
     @Input String productName
+    @Input String bundleVersion
     @Input String unityCmdPath
-    @Input String unityUserName
-    @Input String unityPassword
+    @Input @Optional String userName
+    @Input @Optional String password
     @Input String mirroredUnityProject = 'MirroredUnityProject'
     @Input String mirroredPathRoot = 'buildCache'
     @Input String buildNumber
@@ -46,26 +47,35 @@ class UnityExtension {
     }
 
     void initializePropertyValues() {
-        initializeProjectName()
-
         buildNumber = '0000'
-
-        //TODO: change these properties to be more gradle like?
-        unityUserName = project.hasProperty('UNITY_USERNAME') ? project.getProperty('UNITY_USERNAME') : null
-        unityPassword = project.hasProperty('UNITY_PASSWORD') ? project.getProperty('UNITY_PASSWORD') : null
-
-        mainUnityProjectFileTree = project.fileTree(
-            dir: project.projectDir,
-            include: ['Assets/**', 'ProjectSettings/**', 'Packages/**']
-        )
+        initializeProjectNameAndVersion()
+        initializeUserNamePassword()
+        initializeMainUnityProjectTree()
     }
 
-    private void initializeProjectName() {
+    private void initializeProjectNameAndVersion() {
         String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
-        def matcher = projectSettings =~ /(?m)productName: (.*)?/
-        if(matcher.getCount()>0) {
-            productName = matcher[0][1]
+        def productMatcher = projectSettings =~ /(?m)productName: (.*)?/
+        if(productMatcher.getCount()>0) {
+            productName = productMatcher[0][1]
         }
+
+        def versionMatcher = projectSettings =~ /(?m)bundleVersion: ([0-9\.]+)?/
+        if(versionMatcher.getCount()>0) {
+            bundleVersion = versionMatcher[0][1]
+        }
+    }
+
+    private void initializeUserNamePassword() {
+        userName = project.hasProperty('unity.userName') ? project.getProperty('unity.userName') : null
+        password = project.hasProperty('unity.password') ? project.getProperty('unity.password') : null
+    }
+
+    private void initializeMainUnityProjectTree() {
+        mainUnityProjectFileTree = project.fileTree(
+                dir: project.projectDir,
+                include: ['Assets/**', 'ProjectSettings/**', 'Packages/**']
+        )
     }
 
     private NamedDomainObjectContainer<BuildConfig> CreateBuildConfigContainerWithFactory(Project project) {
@@ -77,16 +87,6 @@ class UnityExtension {
         })
     }
 
-    @Input
-    String getAppVersion() {
-        String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
-        def matcher = projectSettings =~ /(?m)bundleVersion: ([0-9\.]+)?/
-        if(matcher.getCount()>0) {
-            return matcher[0][1]
-        }
-        return '0.1.0'
-    }
-
     ExecResult exec(Closure closure) {
         return exec(ConfigureUtil.configureUsing(closure))
     }
@@ -94,8 +94,6 @@ class UnityExtension {
     ExecResult exec(Action<? super UnityExecSpec> action) {
         return ExecUnity.exec(project, action)
     }
-
-
 
     private void registerGlobalTasks(Project project) {
         addBuildAllRule(project)
@@ -106,7 +104,7 @@ class UnityExtension {
             d.delete this.mirroredPathRoot
         }
         validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig) {
-            unityExtension = this
+            unity = this
         }
     }
 
