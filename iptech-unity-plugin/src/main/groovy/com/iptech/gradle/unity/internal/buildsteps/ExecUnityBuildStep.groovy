@@ -35,7 +35,7 @@ class ExecUnityBuildStep implements BuildStep {
         return buildConfig.unity.project.tasks.create(taskPrefix) {
             doLast {
                 inputs.files(project.provider({
-                    project.fileTree(dir: buildConfig.mirrordProjectPath, includes: ['Assets', 'ProjectSettings', 'Packages'])
+                    project.fileTree(dir: buildConfig.mirrordProjectPath, includes: buildConfig.unity.mainUnityProjectFileTree.getIncludes())
                 }))
                 buildConfig.execUnity(execSpec)
             }
@@ -45,20 +45,16 @@ class ExecUnityBuildStep implements BuildStep {
     Task createExecUnityMethod(String taskPrefix, BuildConfig buildConfig, String staticMethod, List<String> additionalArgs, Closure configureClosure) {
         return buildConfig.unity.project.tasks.create(taskPrefix) {
             doLast {
-                buildConfig.execUnity(new Action<UnityExecSpec>() {
-                    @Override
-                    void execute(UnityExecSpec unityExecSpec) {
-                        List<String> args = [
-                                '-batchmode', '-quit', '-nographics',
-                                '-executeMethod', staticMethod
-                        ]
-                        if(additionalArgs?.size()>0) {
-
-                            args.addAll(additionalArgs)
-                        }
-                        unityExecSpec.arguments(args)
+                buildConfig.execUnity {
+                    List<String> args = [
+                            '-batchmode', '-quit', '-nographics',
+                            '-executeMethod', staticMethod
+                    ]
+                    if(additionalArgs?.size()>0) {
+                        args.addAll(additionalArgs)
                     }
-                })
+                    arguments(args)
+                }
             }
 
             if(configureClosure) {

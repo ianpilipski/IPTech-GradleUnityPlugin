@@ -4,17 +4,14 @@ import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.UnityExecSpec
 import com.iptech.gradle.unity.internal.BuildStepExecutor
 import com.iptech.gradle.unity.internal.BuildStepManager
+import com.iptech.gradle.unity.tasks.ExecUnity
+import com.iptech.gradle.unity.tasks.MirrorProject
+import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.*
-import org.gradle.api.file.FileTree
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
+import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.tasks.*
 import org.gradle.process.ExecResult
 import org.gradle.util.ConfigureUtil
-import com.iptech.gradle.unity.tasks.*
 
 class UnityExtension {
     @Internal final Project project
@@ -33,7 +30,7 @@ class UnityExtension {
 
     @Input String buildNumber
     @Input @Optional String branch
-    @InputFiles FileTree mainUnityProjectFileTree
+    @InputFiles ConfigurableFileTree mainUnityProjectFileTree
 
     @Nested
     final NamedDomainObjectContainer<BuildConfig> buildTypes

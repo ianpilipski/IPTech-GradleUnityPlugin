@@ -2,8 +2,6 @@ package com.iptech.gradle.unity.internal.buildsteps
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
-import com.iptech.gradle.unity.api.UnityExecSpec
-import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -29,22 +27,20 @@ class RunTestsBuildStep implements BuildStep {
         Project project = buildConfig.unity.project
         Task t = project.tasks.create(taskPrefix) {
             inputs.files(project.provider({
-                project.fileTree(dir: buildConfig.mirrordProjectPath, includes: ['Assets/**', 'ProjectSettings/**', 'Packages/**'])
+                project.fileTree(dir: buildConfig.mirrordProjectPath, includes: buildConfig.unity.mainUnityProjectFileTree.getIncludes())
             }))
 
             outputs.file(project.provider({ "${buildConfig.artifactDir}/${taskPrefix}.xml" }))
 
             doLast {
                 String resultFile = "${buildConfig.artifactDir}/${taskPrefix}.xml"
-                ExecResult execResult = buildConfig.execUnity(new Action<UnityExecSpec>() {
-                    @Override
-                    void execute(UnityExecSpec unityExecSpec) {
-                        unityExecSpec.arguments(['-batchmode', '-runTests', '-nographics', '-silent-crashes',
-                                                 '-testPlatform', testPlatform,
-                                                 '-testResults', resultFile
-                        ])
-                    }
-                })
+                ExecResult execResult = buildConfig.execUnity {
+                    arguments([
+                        '-batchmode', '-runTests', '-nographics', '-silent-crashes',
+                        '-testPlatform', testPlatform,
+                        '-testResults', resultFile
+                    ])
+                }
 
                 Boolean failTask = execResult.getExitValue() != 0
                 String failMessage = "Unit Tests Failing"

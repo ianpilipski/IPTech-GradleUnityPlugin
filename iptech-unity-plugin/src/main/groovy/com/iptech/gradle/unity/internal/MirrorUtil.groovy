@@ -1,7 +1,6 @@
 package com.iptech.gradle.unity.internal
 
 import com.iptech.gradle.unity.api.MirrorSpec
-import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileTree
@@ -9,18 +8,19 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.process.ExecSpec
-import org.gradle.util.ConfigureUtil
 
-@CompileStatic
+import javax.inject.Inject
+
 class MirrorUtil {
     private final Project project
 
+    @Inject
     MirrorUtil(Project project) {
         this.project = project
     }
 
-    void mirror(Closure action) {
-        mirror(ConfigureUtil.configureUsing(action))
+    Project getProject() {
+        return this.project
     }
 
     void mirror(Action<? super MirrorSpec> action) {

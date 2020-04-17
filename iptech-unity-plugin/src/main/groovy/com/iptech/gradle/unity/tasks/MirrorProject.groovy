@@ -1,20 +1,16 @@
 package com.iptech.gradle.unity.tasks
 
 import com.iptech.gradle.unity.api.BuildConfig
-import com.iptech.gradle.unity.api.MirrorSpec
 import com.iptech.gradle.unity.internal.MirrorUtil
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.util.PatternFilterable
 
-@CompileStatic
 class MirrorProject extends DefaultTask {
     @Nested
     final Property<BuildConfig> buildConfig = project.objects.property(BuildConfig)
@@ -31,27 +27,17 @@ class MirrorProject extends DefaultTask {
 
     @TaskAction
     void exec() {
-        mirrorUnityProject()
-    }
+        MirrorUtil mutil = project.objects.newInstance(MirrorUtil.class, project)
 
-    private void mirrorUnityProject() {
-        MirrorUtil mutil = new MirrorUtil(project)
-
-        //TODO: can I use a fileTree here and add preserve?
-        mutil.mirror(new Action<MirrorSpec>() {
-            @Override
-            void execute(MirrorSpec mirrorSpec) {
-                mirrorSpec.from project.projectDir
-                mirrorSpec.include 'Assets/**', 'ProjectSettings/**', 'AssetManifest.xml', 'Packages/**'
-                mirrorSpec.preserve(new Action<PatternFilterable>() {
-                    @Override
-                    void execute(PatternFilterable patternFilterable) {
-                        patternFilterable.include 'Library/**'
-                        patternFilterable.include 'Temp/**'
-                    }
-                })
-                mirrorSpec.into buildConfig.get().mirrordProjectPath
+        mutil.mirror {
+            ConfigurableFileTree fileTree = buildConfig.get().unity.mainUnityProjectFileTree
+            from fileTree.getDir()
+            include fileTree.getIncludes()
+            preserve {
+                include 'Library/**'
+                include 'Temp/**'
             }
-        })
+            into buildConfig.get().mirrordProjectPath
+        }
     }
 }
