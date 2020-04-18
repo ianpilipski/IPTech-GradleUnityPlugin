@@ -13,20 +13,25 @@ import org.gradle.api.tasks.*
 import org.gradle.process.ExecResult
 
 class UnityExtension {
+    private static final String GRADLE_PROPERTY_USERNAME = 'iptech.unity.username'
+    private static final String GRALDE_PROPERTY_PASSWORD = 'iptech.unity.password'
+
     @Internal final Project project
     private Task validateConfigurationTask
 
     @Internal BuildStepManager buildStepManager
 
-    @Input String productName
-    @Input String bundleVersion
+    private String fallbackBundleVersion
+    private String fallbackProductName
+    private String bundleVersion
+    private String productName
     @Input String unityCmdPath
     @Input @Optional String userName
     @Input @Optional String password
     @Input String mirroredUnityProject = 'MirroredUnityProject'
     @Input String mirroredPathRoot = 'buildCache'
     @Input String buildNumber
-    @InputFiles ConfigurableFileTree mainUnityProjectFileTree
+    private ConfigurableFileTree mainUnityProjectFileTree
 
     @Nested
     final NamedDomainObjectContainer<BuildConfig> buildTypes
@@ -45,29 +50,69 @@ class UnityExtension {
         buildTypes.configure(configClosure)
     }
 
-    void initializePropertyValues() {
-        buildNumber = '0000'
-        initializeProjectNameAndVersion()
-        initializeUserNamePassword()
-        initializeMainUnityProjectTree()
+    String getUnityProjectPath() {
+        return mainUnityProjectFileTree.dir.path
     }
 
-    private void initializeProjectNameAndVersion() {
-        String projectSettings = new File(project.projectDir, 'ProjectSettings/ProjectSettings.asset').text
-        def productMatcher = projectSettings =~ /(?m)productName: (.*)?/
-        if(productMatcher.getCount()>0) {
-            productName = productMatcher[0][1]
-        }
+    void setUnityProjectPath(String projectPath) {
+        mainUnityProjectFileTree.setDir(projectPath)
+        updateFallbackProductNameAndBundleVersion()
+    }
 
-        def versionMatcher = projectSettings =~ /(?m)bundleVersion: ([0-9\.]+)?/
-        if(versionMatcher.getCount()>0) {
-            bundleVersion = versionMatcher[0][1]
+    @Input
+    String getBundleVersion() {
+        return bundleVersion ?: fallbackBundleVersion
+    }
+
+    void setBundleVersion(String newVersion) {
+        bundleVersion = newVersion
+    }
+
+    @Input
+    String getProductName() {
+        return productName ?: fallbackProductName
+    }
+
+    void setProductName(String newProductName) {
+        productName = newProductName
+    }
+
+    @InputFiles
+    ConfigurableFileTree getMainUnityProjectFileTree() {
+        return mainUnityProjectFileTree
+    }
+
+    void setMainUnityProjectFileTree(ConfigurableFileTree newFileTree) {
+        mainUnityProjectFileTree = newFileTree
+        updateFallbackProductNameAndBundleVersion()
+    }
+
+    void initializePropertyValues() {
+        buildNumber = '0000'
+        initializeMainUnityProjectTree()
+        updateFallbackProductNameAndBundleVersion()
+        initializeUserNamePassword()
+    }
+
+    private void updateFallbackProductNameAndBundleVersion() {
+        File f = new File(getUnityProjectPath(), 'ProjectSettings/ProjectSettings.asset')
+        if(f.exists()) {
+            String projectSettings = f.text
+            def productMatcher = projectSettings =~ /(?m)productName: (.*)?/
+            if(productMatcher.getCount()>0) {
+                fallbackProductName = productMatcher[0][1]
+            }
+
+            def versionMatcher = projectSettings =~ /(?m)bundleVersion: ([0-9\.]+)?/
+            if(versionMatcher.getCount()>0) {
+                fallbackBundleVersion = versionMatcher[0][1]
+            }
         }
     }
 
     private void initializeUserNamePassword() {
-        userName = project.hasProperty('unity.userName') ? project.getProperty('unity.userName') : null
-        password = project.hasProperty('unity.password') ? project.getProperty('unity.password') : null
+        userName = project.hasProperty(GRADLE_PROPERTY_USERNAME) ? project.getProperty(GRADLE_PROPERTY_USERNAME) : null
+        password = project.hasProperty(GRALDE_PROPERTY_PASSWORD) ? project.getProperty(GRALDE_PROPERTY_PASSWORD) : null
     }
 
     private void initializeMainUnityProjectTree() {
