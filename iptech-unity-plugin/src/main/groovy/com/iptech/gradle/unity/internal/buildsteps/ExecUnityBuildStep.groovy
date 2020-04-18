@@ -5,6 +5,7 @@ import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.unity.api.UnityExecSpec
 import org.gradle.api.Action
 import org.gradle.api.Task
+import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.util.ConfigureUtil
 
 class ExecUnityBuildStep implements BuildStep {
@@ -33,10 +34,13 @@ class ExecUnityBuildStep implements BuildStep {
 
     Task createExecUnity(String taskPrefix, BuildConfig buildConfig, Action<? super UnityExecSpec> execSpec) {
         return buildConfig.unity.project.tasks.create(taskPrefix) {
+            inputs.files(project.provider({
+                ConfigurableFileTree ft = buildConfig.unity.mainUnityProjectFileTree.clone()
+                ft.setDir(buildConfig.mirrordProjectPath)
+                return ft
+            }))
+
             doLast {
-                inputs.files(project.provider({
-                    project.fileTree(dir: buildConfig.mirrordProjectPath, includes: buildConfig.unity.mainUnityProjectFileTree.getIncludes())
-                }))
                 buildConfig.execUnity(execSpec)
             }
         }
