@@ -40,6 +40,7 @@ class RunTestsBuildStep implements BuildStep {
                         '-testPlatform', testPlatform,
                         '-testResults', resultFile
                     ])
+                    ignoreExitValue true
                 }
 
                 Boolean failTask = execResult.getExitValue() != 0
