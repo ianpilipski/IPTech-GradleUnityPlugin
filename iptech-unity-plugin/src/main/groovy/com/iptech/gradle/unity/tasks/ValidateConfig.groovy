@@ -32,13 +32,6 @@ class ValidateConfig extends DefaultTask {
     static void ValidateUserNamePassword(UnityExtension config) {
         println "== unity.userName = ${config.userName}"
         println "== unity.password = ${config.password ? '(hidden)' : 'null'}"
-        if(!config.userName || !config.password) {
-            throw new GradleException(
-                    "\n\nYou must supply a unity username/password in your ~/.gradle/gradle.properties file:\n\n" +
-                            "UNITY_USERNAME=<yourunitylogin@youremail.com>\n" +
-                            "UNITY_PASSWORD=<yourunitypassword>\n"
-            )
-        }
     }
 
     static void LogAndAssertNotNullOrEmpty(Object value, String propertyName) {
