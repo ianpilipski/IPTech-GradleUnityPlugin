@@ -15,6 +15,11 @@ class ImportProjectBuildStep implements BuildStep {
     }
 
     @Override
+    Boolean getIsTestTask() {
+        return false
+    }
+
+    @Override
     Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
         Project project = buildConfig.unity.project
         Task t = project.task(taskPrefix) {

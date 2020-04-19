@@ -16,6 +16,11 @@ class ExecUnityBuildStep implements BuildStep {
     }
 
     @Override
+    Boolean getIsTestTask() {
+        return false
+    }
+
+    @Override
     Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
         if(stepName == 'execUnity') {
             return [createExecUnity(taskPrefix, buildConfig, ConfigureUtil.configureUsing((Closure)args[0]))]

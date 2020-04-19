@@ -18,6 +18,7 @@ class BuildConfig {
     @Input String platform
     @OutputDirectory @Optional String outputPath
     @Internal DomainObjectSet<Closure> steps
+    @Internal Boolean isDefault
 
     @Inject
     BuildConfig(String name, UnityExtension unity) {

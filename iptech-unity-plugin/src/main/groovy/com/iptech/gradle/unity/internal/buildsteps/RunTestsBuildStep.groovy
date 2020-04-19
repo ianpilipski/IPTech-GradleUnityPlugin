@@ -15,6 +15,11 @@ class RunTestsBuildStep implements BuildStep {
     }
 
     @Override
+    Boolean getIsTestTask() {
+        return true
+    }
+
+    @Override
     Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
         if(stepName == 'runEditModeTests') {
             return [ createTestTask('EditMode', taskPrefix, buildConfig) ]
@@ -58,13 +63,6 @@ class RunTestsBuildStep implements BuildStep {
                 if (failTask) {
                     throw new GradleException(failMessage)
                 }
-            }
-        }
-
-        // add to check task if default lifecycle is included
-        project.tasks.all { Task addedTask ->
-            if(addedTask.name == 'check') {
-                addedTask.dependsOn(t)
             }
         }
 

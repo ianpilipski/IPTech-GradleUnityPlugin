@@ -8,16 +8,23 @@ class BuildStepExecutor {
     private final BuildStepManager buildStepManager
     private final BuildConfig buildConfig
     private final Task endTask
+    private final Task checkTask
     private Task lastTaskCreated
     private Integer stepCount
     private Object originalDelegate
 
-    BuildStepExecutor(BuildStepManager buildStepManager, BuildConfig buildConfig, Task dependsOnTask, Task endTask) {
+
+    BuildStepExecutor(
+        BuildStepManager buildStepManager,
+        BuildConfig buildConfig,
+        Task dependsOnTask, Task endTask, Task checkTask
+    ) {
         this.buildStepManager = buildStepManager
         this.buildConfig = buildConfig
         this.lastTaskCreated = dependsOnTask
         this.endTask = endTask
         this.stepCount = 0
+        this.checkTask = checkTask
     }
 
     void evaluateClosure(Closure closure) {
@@ -29,7 +36,6 @@ class BuildStepExecutor {
 
     @Override
     Object invokeMethod(String name, Object args) {
-        println "invokeMethod: $name"
         if (!tryExecBuildStep(name, args)) {
             return originalDelegate.invokeMethod(this, name, args)
         }
@@ -47,6 +53,9 @@ class BuildStepExecutor {
                 createdTasks.each {
                     endTask.dependsOn(it)
                     it.dependsOn(lastTaskCreated)
+                    if(bs.isTestTask) {
+                        checkTask.dependsOn(it)
+                    }
                 }
                 lastTaskCreated = createdTasks.last()
             }

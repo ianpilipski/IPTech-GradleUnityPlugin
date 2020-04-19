@@ -18,6 +18,7 @@ class UnityExtension {
 
     @Internal final Project project
     private Task validateConfigurationTask
+    private BuildConfig defaultBuildConfig
 
     @Internal BuildStepManager buildStepManager
 
@@ -169,6 +170,11 @@ class UnityExtension {
     protected void buildTypeAdded(Project project, BuildConfig bt) {
         // BuildType is created, but properties are not configured yet
         // So you need to reference the properties lazily
+        if(!defaultBuildConfig) defaultBuildConfig = bt
+
+        Task checkTask = bt.unity.project.tasks.create("check${bt.name}") {
+            group 'verification'
+        }
 
         Task beginTask = project.tasks.create("unityBegin${bt.name}").dependsOn(validateConfigurationTask)
         Task mirrorUnityProject = project.tasks.create("step_000_${bt.name}_mirrorProject", MirrorProject) {
@@ -182,7 +188,7 @@ class UnityExtension {
             buildConfig.set(bt)
         }
 
-        BuildStepExecutor buildStepExecutor = new BuildStepExecutor(buildStepManager, bt, mirrorUnityProject, endTask)
+        BuildStepExecutor buildStepExecutor = new BuildStepExecutor(buildStepManager, bt, mirrorUnityProject, endTask, checkTask)
         bt.steps.all { Closure stepClosure ->
             buildStepExecutor.evaluateClosure(stepClosure)
         }
@@ -194,5 +200,16 @@ class UnityExtension {
                         )
                 )
         )
+
+        Task assembleTask = project.tasks.create("assemble${bt.name}") {
+            group 'build'
+            dependsOn buildTask, checkTask
+        }
+
+        //hook the lifecycle build task to the default build
+        if(defaultBuildConfig == bt) {
+            project.tasks.assemble.dependsOn(assembleTask)
+            project.tasks.check.dependsOn(checkTask)
+        }
     }
 }
