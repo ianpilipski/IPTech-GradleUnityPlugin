@@ -10,6 +10,7 @@ class BuildStepExecutor {
     private final Task endTask
     private Task lastTaskCreated
     private Integer stepCount
+    private Object originalDelegate
 
     BuildStepExecutor(BuildStepManager buildStepManager, BuildConfig buildConfig, Task dependsOnTask, Task endTask) {
         this.buildStepManager = buildStepManager
@@ -20,27 +21,18 @@ class BuildStepExecutor {
     }
 
     void evaluateClosure(Closure closure) {
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = this
+        originalDelegate = closure.getDelegate()
+        closure.setDelegate(this)
+        closure.setResolveStrategy(Closure.DELEGATE_FIRST)
         closure()
     }
 
-    Object invokeMethod(String name, Object args) {
-        if(!tryExecBuildStep(name, args)) {
-            return metaClass.invokeMethod(this, name, args)
-        }
-    }
-
     @Override
-    Object getProperty(String name) {
-        //println "getProperty: $name"
-        MetaProperty property = metaClass.hasProperty(this, name)
-        if(property) {
-            return property.getProperty(this)
+    Object invokeMethod(String name, Object args) {
+        println "invokeMethod: $name"
+        if (!tryExecBuildStep(name, args)) {
+            return originalDelegate.invokeMethod(this, name, args)
         }
-
-        tryExecBuildStep(name, null)
-        return null
     }
 
     private Boolean tryExecBuildStep(String name, Object args) {

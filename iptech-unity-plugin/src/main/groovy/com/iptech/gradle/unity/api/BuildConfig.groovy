@@ -38,6 +38,11 @@ class BuildConfig {
         this.outputPath = outputPath
     }
 
+    @Internal
+    String getBuildTypeName() {
+        return name
+    }
+
     @Input
     String getUnityPlatform() {
         if(platform=='Amazon') {
