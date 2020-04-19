@@ -51,6 +51,7 @@ class UnityExtension {
         buildTypes.configure(configClosure)
     }
 
+    @Internal
     String getUnityProjectPath() {
         return mainUnityProjectFileTree.dir.path
     }
