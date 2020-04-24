@@ -22,22 +22,22 @@ class MirrorProject extends DefaultTask {
 
     @OutputFiles
     FileTree getOutputFileTree() {
-        return project.fileTree(dir:buildConfig.get().mirrordProjectPath)
+        BuildConfig bc = buildConfig.get()
+        return bc.buildCacheProjectPath.asFileTree.matching(bc.unity.unityProjectFilter.get())
     }
 
     @TaskAction
     void exec() {
-        MirrorUtil mutil = project.objects.newInstance(MirrorUtil.class, project)
+        MirrorUtil mutil = project.objects.newInstance(MirrorUtil, project)
 
         mutil.mirror {
-            ConfigurableFileTree fileTree = buildConfig.get().unity.mainUnityProjectFileTree
-            from fileTree.getDir()
-            include fileTree.getIncludes()
+            from buildConfig.get().unity.projectPath.get().asFile
+            include buildConfig.get().unity.unityProjectFilter.get().includes
             preserve {
                 include 'Library/**'
                 include 'Temp/**'
             }
-            into buildConfig.get().mirrordProjectPath
+            into buildConfig.get().buildCacheProjectPath
         }
     }
 }

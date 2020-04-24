@@ -13,11 +13,11 @@ apply plugin: 'com.iptech.gradle.unity-plugin'
 
 
 unity {
-    unityCmdPath '/Applications/Unity/HUB/Editor/2018.4.17f1/Unity.app/Contents/MacOS/Unity'
+    unityCmdPath = file('/Applications/Unity/HUB/Editor/2018.4.17f1/Unity.app/Contents/MacOS/Unity')
     buildNumber = '0001'
     buildTypes {
         DebugAndroid {
-            platform 'Android'
+            platform = 'Android'
             steps {
                 importProject()
                 runEditModeTests()
@@ -28,7 +28,8 @@ unity {
                         println 'example of extending the task'
                     }
                 }
-                execUnityMethod('BuildScript.WithArguments', '-Hello', 'World') {
+                execUnityMethod('BuildScript.WithArguments') {
+                    arguments = ['-Hello', 'World']
                     outputs.dir('build')
                 }
             }

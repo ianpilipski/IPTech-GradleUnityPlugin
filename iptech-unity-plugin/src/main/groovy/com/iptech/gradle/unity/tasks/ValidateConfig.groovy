@@ -4,9 +4,16 @@ import com.iptech.gradle.unity.UnityExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemLocation
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.file.DefaultFilePropertyFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.util.PatternFilterable
 
 class ValidateConfig extends DefaultTask {
     @Nested
@@ -22,22 +29,27 @@ class ValidateConfig extends DefaultTask {
         LogAndAssertNotNullOrEmpty(config.unityCmdPath            , 'unityCmdPath')
         ValidateUserNamePassword(config)
         LogAndAssertNotNullOrEmpty(config.buildNumber             , 'buildNumber')
-        LogAndAssertNotNullOrEmpty(config.mirroredPathRoot        , 'mirroredPathRoot')
-        LogAndAssertNotNullOrEmpty(config.mirroredUnityProject    , 'mirroredUnityProject')
-        LogAndAssertNotNullOrEmpty(config.mainUnityProjectFileTree, 'mainUnityProjectFileTree')
+        LogAndAssertNotNullOrEmpty(config.buildCachePath          , 'buildCachePath')
+        LogAndAssertNotNullOrEmpty(config.unityProjectFilter      , 'unityProjectFilter')
 
         AssertUnityExecutableExists(project, config.unityCmdPath)
     }
 
     static void ValidateUserNamePassword(UnityExtension config) {
-        println "== unity.userName = ${config.userName}"
-        println "== unity.password = ${config.password ? '(hidden)' : 'null'}"
+        println "== unity.userName = ${config.userName.getOrNull()}"
+        println "== unity.password = ${config.password.getOrNull() ? '(hidden)' : 'null'}"
     }
 
-    static void LogAndAssertNotNullOrEmpty(Object value, String propertyName) {
-        if(!value) {
+    static void LogAndAssertNotNullOrEmpty(Provider<? super Object> provider, String propertyName) {
+        if(!provider.isPresent()) {
             AssertNotNullOrEmpty("", propertyName)
         } else {
+            Object value = provider.get()
+            if(value instanceof FileSystemLocation) {
+                value = value.asFile.absolutePath
+            } else if(value instanceof PatternFilterable) {
+                value = ((PatternFilterable)value).getIncludes().toString()
+            }
             if(value instanceof String) {
                 println "== unity.${propertyName} = ${value}"
                 AssertNotNullOrEmpty(value, propertyName)
@@ -53,8 +65,8 @@ class ValidateConfig extends DefaultTask {
         }
     }
 
-    static void AssertUnityExecutableExists(Project project, String unityCmdPath) {
-        File file = project.file(unityCmdPath)
+    static void AssertUnityExecutableExists(Project project, RegularFileProperty unityCmdPath) {
+        File file = unityCmdPath.get().asFile
         if(!file.exists()) {
             throw new GradleException("Unity executable not found at ${unityCmdPath}, please correct and try again.")
         }

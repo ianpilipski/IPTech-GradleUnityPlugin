@@ -3,20 +3,21 @@ package com.iptech.gradle.unity.internal
 import com.iptech.gradle.unity.api.MirrorSpec
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileTree
-import org.gradle.api.file.CopySpec
-import org.gradle.api.file.FileCopyDetails
-import org.gradle.api.file.FileVisitDetails
-import org.gradle.process.ExecSpec
+import org.gradle.api.file.*
+import org.gradle.api.model.ObjectFactory
 
 import javax.inject.Inject
 
 class MirrorUtil {
     private final Project project
+    private final ObjectFactory objectFactory
+    private final FileSystemOperations fileSystemOperations
 
     @Inject
-    MirrorUtil(Project project) {
+    MirrorUtil(Project project, ObjectFactory objectFactory, FileSystemOperations fileSystemOperations) {
         this.project = project
+        this.objectFactory = objectFactory
+        this.fileSystemOperations = fileSystemOperations
     }
 
     Project getProject() {
@@ -24,7 +25,8 @@ class MirrorUtil {
     }
 
     void mirror(Action<? super MirrorSpec> action) {
-        DefaultMirrorSpec ms = project.objects.newInstance(DefaultMirrorSpec.class, project)
+        ObjectFactory objectFactory = this.objectFactory
+        DefaultMirrorSpec ms = objectFactory.newInstance(DefaultMirrorSpec, project)
         action.execute(ms)
 
         List<FileCopyDetails> copyDetailsAll = []
@@ -33,7 +35,7 @@ class MirrorUtil {
         if(inc.size()==0) {
             inc.add('**')
         }
-        project.copy(new Action<CopySpec>() {
+        fileSystemOperations.copy(new Action<CopySpec>() {
             @Override
             void execute(CopySpec cs) {
                 cs.from ms.sourceDir
@@ -62,12 +64,14 @@ class MirrorUtil {
         }
 
         // remove dangling / broken symlinks which fail the fileTree recursion
+        //TODO: fix this?
+        /*
         project.exec(new Action<ExecSpec>() {
             @Override
             void execute(ExecSpec execSpec) {
                 execSpec.commandLine 'bash', '-cl', "find \"${ms.destDir.absolutePath}\" -type l -exec test ! -e {} \\; -delete"
             }
-        })
+        })*/
 
         project.fileTree(ms.destDir, new Action<ConfigurableFileTree>() {
             @Override

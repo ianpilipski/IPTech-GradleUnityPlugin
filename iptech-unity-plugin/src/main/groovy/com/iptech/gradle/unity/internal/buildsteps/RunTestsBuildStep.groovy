@@ -5,7 +5,9 @@ import com.iptech.gradle.unity.api.BuildStep
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.process.ExecResult
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
+import com.iptech.gradle.unity.tasks.ExecUnity
 
 class RunTestsBuildStep implements BuildStep {
 
@@ -19,40 +21,40 @@ class RunTestsBuildStep implements BuildStep {
         return true
     }
 
-    @Override
-    Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
-        if(stepName == 'runEditModeTests') {
-            return [ createTestTask('EditMode', taskPrefix, buildConfig) ]
-        } else {
-            return [ createTestTask('PlayMode', taskPrefix, buildConfig) ]
-        }
+    Task runEditModeTests(String taskPrefix, BuildConfig buildConfig) {
+        return createTestTask('EditMode', taskPrefix, buildConfig)
+    }
+
+    Task runPlayModeTests(String taskPrefix, BuildConfig buildConfig) {
+        return createTestTask('PlayMode', taskPrefix, buildConfig)
     }
 
     private Task createTestTask(String testPlatform, String taskPrefix, BuildConfig buildConfig) {
         Project project = buildConfig.unity.project
-        Task t = project.tasks.create(taskPrefix) {
-            inputs.files(project.provider({
-                project.fileTree(dir: buildConfig.mirrordProjectPath, includes: buildConfig.unity.mainUnityProjectFileTree.getIncludes())
-            }))
+        return project.tasks.create(taskPrefix, ExecUnity) {
+            Provider<RegularFile> resultFile = buildConfig.artifactDir.map { it.file("${taskPrefix}.xml") }
+            projectPath = buildConfig.buildCacheProjectPath
+            buildTarget = buildConfig.buildTarget
+            ignoreExitValue = true
+            arguments = project.provider({
+                [
+                    '-batchmode', '-runTests', '-nographics', '-silent-crashes',
+                    '-testPlatform', testPlatform,
+                    '-testResults', resultFile.get().asFile.absolutePath
+                ]
+            })
 
-            outputs.file(project.provider({ "${buildConfig.artifactDir}/${taskPrefix}.xml" }))
+            inputs.files {
+                buildConfig.buildCacheProjectPath.asFileTree.matching(buildConfig.unity.unityProjectFilter.get())
+            }
+
+            outputs.file resultFile
 
             doLast {
-                String resultFile = "${buildConfig.artifactDir}/${taskPrefix}.xml"
-                ExecResult execResult = buildConfig.execUnity {
-                    arguments([
-                        '-batchmode', '-runTests', '-nographics', '-silent-crashes',
-                        '-testPlatform', testPlatform,
-                        '-testResults', resultFile
-                    ])
-                    ignoreExitValue true
-                }
-
-                Boolean failTask = execResult.getExitValue() != 0
+                Boolean failTask = execResult.get().exitValue != 0
                 String failMessage = "Unit Tests Failing"
 
-
-                File result = project.file(resultFile)
+                File result = resultFile.get().asFile
                 if(result.exists()) {
                     String testSummary = project.nunit.parseFailures(result)
                     println testSummary
@@ -65,7 +67,5 @@ class RunTestsBuildStep implements BuildStep {
                 }
             }
         }
-
-        return t
     }
 }

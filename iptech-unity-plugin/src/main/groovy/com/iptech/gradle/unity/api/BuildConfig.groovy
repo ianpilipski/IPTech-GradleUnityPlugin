@@ -1,82 +1,73 @@
 package com.iptech.gradle.unity.api
 
 import com.iptech.gradle.unity.UnityExtension
-import org.gradle.api.Action
 import org.gradle.api.DomainObjectSet
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.process.ExecResult
 
 import javax.inject.Inject
 
-class BuildConfig {
+abstract class BuildConfig {
     @Internal final UnityExtension unity
+    private final ObjectFactory objectFactory
 
-    @Input String name
-    @Input String platform
-    @OutputDirectory @Optional String outputPath
-    @Internal DomainObjectSet<Closure> steps
-    @Internal Boolean isDefault
+    @Input final String name
+    @Input abstract Property<String> getPlatform()
+    @Internal @Optional DomainObjectSet<Closure> steps
 
     @Inject
-    BuildConfig(String name, UnityExtension unity) {
-        this.unity = unity
+    BuildConfig(String name, UnityExtension unity, ObjectFactory objectFactory) {
         this.name = name
-        this.steps = unity.project.objects.domainObjectSet(Closure.class)
+        this.unity = unity
+        this.steps = objectFactory.domainObjectSet(Closure.class)
+        this.objectFactory = objectFactory
     }
 
     void steps(Closure stepsClosure) {
         this.steps.add(stepsClosure)
     }
 
-    void platform(String platform) {
-        this.platform = platform
-    }
-
-    void outputPath(String outputPath) {
-        this.outputPath = outputPath
+    @Internal
+    Provider<String> getBuildTarget() {
+        return platform.map {
+            if(it == 'Amazon') {
+                return 'Android'
+            }
+            return it
+        }
     }
 
     @Internal
-    String getBuildTypeName() {
-        return name
+    DirectoryProperty getBuildCacheProjectPath() {
+        DirectoryProperty retVal = objectFactory.directoryProperty()
+        retVal.value(unity.buildCachePath.dir("Cached-UnityProject-${name}"))
+        return retVal
     }
 
-    @Input
-    String getUnityPlatform() {
-        if(platform=='Amazon') {
-            return 'Android'
-        }
-        return platform
+    @Internal
+    DirectoryProperty getBuildDirectory() {
+        DirectoryProperty retVal = objectFactory.directoryProperty()
+        retVal.value(unity.buildDirectory.dir(this.name))
+        return retVal
     }
 
-    @OutputDirectory
-    File getMirrordProjectPath() {
-        return unity.project.file("${unity.mirroredPathRoot}/${unity.mirroredUnityProject}")
+    @Internal
+    DirectoryProperty getLogDir() {
+        DirectoryProperty retVal = objectFactory.directoryProperty()
+        retVal.value(buildDirectory.dir('logs'))
+        return retVal
     }
 
-    @OutputDirectory
-    File getLogDir() {
-        return unity.project.file("${unity.project.buildDir}/${this.name}-${unity.bundleVersion}-${unity.buildNumber}/logs")
-    }
-
-    @OutputDirectory
-    File getArtifactDir() {
-        return unity.project.file( "${unity.project.buildDir}/${this.name}-${unity.bundleVersion}-${unity.buildNumber}/artifacts")
-    }
-
-
-    ExecResult execUnity(Action<? super UnityExecSpec> execSpec) {
-        BuildConfig self = this
-        return unity.exec(new Action<UnityExecSpec>() {
-            @Override
-            void execute(UnityExecSpec unityExecSpec) {
-                unityExecSpec.projectPath(self.getMirrordProjectPath().path)
-                unityExecSpec.buildTarget(self.getUnityPlatform())
-                execSpec.execute(unityExecSpec)
-            }
-        })
+    @Internal
+    DirectoryProperty getArtifactDir() {
+        DirectoryProperty retVal = objectFactory.directoryProperty()
+        retVal.value(buildDirectory.dir('artifacts'))
+        return retVal
     }
 }

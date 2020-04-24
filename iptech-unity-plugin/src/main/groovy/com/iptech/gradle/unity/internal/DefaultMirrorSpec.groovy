@@ -1,11 +1,10 @@
 package com.iptech.gradle.unity.internal
 
-
 import com.iptech.gradle.unity.api.MirrorSpec
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.FileTreeElement
-import org.gradle.api.specs.Spec
+import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 
@@ -14,6 +13,7 @@ import javax.inject.Inject
 class DefaultMirrorSpec implements MirrorSpec {
     private final Project project
 
+    FileTree fileTree
     File sourceDir
     File destDir
     private final PatternFilterable preserveInDestination = new PatternSet()
@@ -25,7 +25,11 @@ class DefaultMirrorSpec implements MirrorSpec {
     }
 
     void from(Object srcDir) {
-        sourceDir = project.file(srcDir)
+        if(srcDir instanceof FileTree) {
+            fileTree = srcDir
+        } else {
+            sourceDir = project.file(srcDir)
+        }
     }
 
     void into(Object destDir) {
@@ -37,26 +41,8 @@ class DefaultMirrorSpec implements MirrorSpec {
     }
 
     @Override
-    MirrorSpec include(String... includes) {
-        this.includeInCopy.include(includes)
-        return this
-    }
-
-    @Override
     MirrorSpec include(Iterable<String> includes) {
         this.includeInCopy.include(includes)
-        return this
-    }
-
-    @Override
-    MirrorSpec include(Spec<FileTreeElement> includeSpec) {
-        this.includeInCopy.include(includeSpec)
-        return this
-    }
-
-    @Override
-    MirrorSpec include(Closure includeSpec) {
-        this.includeInCopy.include(includeSpec)
         return this
     }
 

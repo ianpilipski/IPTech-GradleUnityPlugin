@@ -1,2 +1,11 @@
 rootProject.name = 'iptech-gradleunityplugin'
 include 'iptech-unity-plugin'
+
+String iptechXcodePlugin = '../IPTech-GradleXcodePlugin/iptech-xcode-plugin'
+if(file(iptechXcodePlugin).exists()) {
+    includeBuild(iptechXcodePlugin) {
+        dependencySubstitution {
+            substitute module('gradle.plugin.com.iptech.gradle:iptech-xcode-plugin') with project(':')
+        }
+    }
+}

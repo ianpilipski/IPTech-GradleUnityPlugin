@@ -2,7 +2,8 @@ package com.iptech.gradle.unity.internal.buildsteps
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
-import com.iptech.gradle.unity.api.UnityExecSpec
+import com.iptech.gradle.unity.api.ExecUnitySpec
+import com.iptech.gradle.unity.tasks.ExecUnity
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -19,30 +20,26 @@ class ImportProjectBuildStep implements BuildStep {
         return false
     }
 
-    @Override
-    Iterable<Task> createTasks(String stepName, String taskPrefix, BuildConfig buildConfig, Object args) {
+    Task importProject(String taskPrefix, BuildConfig buildConfig) {
         Project project = buildConfig.unity.project
-        Task t = project.task(taskPrefix) {
-            inputs.files(project.provider({
-                project.fileTree(dir: buildConfig.mirrordProjectPath.path, includes: buildConfig.unity.mainUnityProjectFileTree.getIncludes())
-            }))
+        Task t = project.tasks.create(taskPrefix, ExecUnity) {
+            arguments = ['-batchmode', '-quit', '-nographics', '-silent-crashes']
+            projectPath = buildConfig.buildCacheProjectPath
+            buildTarget = buildConfig.buildTarget
+
+            inputs.files {
+                buildConfig.buildCacheProjectPath.asFileTree.matching(buildConfig.unity.unityProjectFilter.get())
+            }
 
             outputs.dir {
-                project.file("${buildConfig.mirrordProjectPath}/Library/ScriptAssemblies}")
+                buildConfig.buildCacheProjectPath.dir("Library/ScriptAssemblies")
             }
 
-            doLast {
+            doFirst {
                 // This will force the re-compilation of script files
-                project.delete "${buildConfig.mirrordProjectPath}/Library/ScriptAssemblies"
-
-                buildConfig.execUnity(new Action<UnityExecSpec>() {
-                    @Override
-                    void execute(UnityExecSpec unityExecSpec) {
-                        unityExecSpec.arguments(['-batchmode', '-quit', '-nographics', '-silent-crashes'])
-                    }
-                })
+                project.delete "${buildConfig.buildCacheProjectPath.get().asFile.absolutePath}/Library/ScriptAssemblies"
             }
         }
-        return [t]
+        return t
     }
 }
