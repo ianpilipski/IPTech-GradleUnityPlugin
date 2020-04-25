@@ -53,6 +53,10 @@ class ExecUnityBuildStep implements BuildStep {
                 '-batchmode', '-quit', '-nographics',
                 '-executeMethod', staticMethod
             ])
+
+            inputs.files {
+                buildConfig.buildCacheProjectPath.asFileTree.matching(buildConfig.unity.unityProjectFilter.get())
+            }
         }
         return buildConfig.unity.project.tasks.create(taskPrefix, ExecUnity.class, configureClosure >> additionalConfig )
     }

@@ -20,6 +20,7 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.process.ExecResult
+import org.gradle.util.ConfigureUtil
 
 abstract class UnityExtension {
     private static final String GRADLE_PROPERTY_USERNAME = 'iptech.unity.username'

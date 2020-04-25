@@ -5,6 +5,8 @@ import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.xcode.tasks.ExportArchive
 import com.iptech.gradle.xcode.tasks.XcodeBuild
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 
 class ExportXcodeArchive implements BuildStep {
     @Override
@@ -19,13 +21,8 @@ class ExportXcodeArchive implements BuildStep {
 
     Task exportXcodeArchive(
         String taskPrefix, BuildConfig buildConfig,
-        String arg_archivePath, String arg_exportOptionsPlist,
-        String arg_exportPath
+        Closure config
     ) {
-        Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExportArchive.class) {
-            archivePath arg_archivePath
-            exportOptionsPlist arg_exportOptionsPlist
-            exportPath arg_exportPath
-        }
+        return buildConfig.unity.project.tasks.create(taskPrefix, ExportArchive.class, config)
     }
 }

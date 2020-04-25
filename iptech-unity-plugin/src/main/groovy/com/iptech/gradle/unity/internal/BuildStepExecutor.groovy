@@ -3,6 +3,7 @@ package com.iptech.gradle.unity.internal
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import org.codehaus.groovy.runtime.GStringImpl
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.GradleScriptException
 import org.gradle.api.Task
@@ -35,21 +36,26 @@ class BuildStepExecutor {
     }
 
     void evaluateClosure(Closure closure) {
-        originalDelegate = closure.getDelegate()
-        closure.setDelegate(this)
-        closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-        closure()
+        try {
+            //action.execute(this)
+            originalDelegate = closure.getDelegate()
+            closure.setDelegate(this)
+            closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+            closure()
+        } catch(Exception e) {
+            throw e // new GradleScriptException(e.message, e)
+        }
     }
 
     @Override
     Object invokeMethod(String name, Object args) {
         if (!tryExecBuildStep(name, args)) {
-            return originalDelegate.invokeMethod(this, name, args)
+            throw new GradleException("No build step named ${name}, could be found.")
         }
     }
 
     private Boolean tryExecBuildStep(String name, Object args) {
-        try {
+        //try {
             //println "tryExecBuildStep: ${name} args: $args"
             if (buildStepManager.hasBuildStep(name)) {
                 BuildStep bs = buildStepManager.getBuildStep(name)
@@ -58,7 +64,7 @@ class BuildStepExecutor {
                 String taskName = "step_${stepString}_${buildConfig.name}_${name}"
 
                 Method m = bs.class.methods.find { it.name == name }
-                if(!m) throw new NoSuchMethodException()
+                if(!m) throw new GradleException("BuildStep ${name} has bad code, the task generator could be found.")
 
                 Integer index = 0
                 List<Object> typedArgs = [ taskName, buildConfig ]
@@ -82,7 +88,12 @@ class BuildStepExecutor {
                     index++
                 }
 
-                Task retTask = bs.invokeMethod(name, typedArgs)
+                Task retTask
+                try {
+                    retTask = bs.invokeMethod(name, typedArgs)
+                } catch(Exception e) {
+                    throw new GradleScriptException(e.message, e)
+                }
 
 
                 Iterable<Task> createdTasks = [retTask]
@@ -100,11 +111,12 @@ class BuildStepExecutor {
                 return true
             }
             return false
-        } catch(NoSuchMethodException|MissingMethodException e) {
-            throw e// new GradleScriptException(e.message, e.cause)
-        } catch(SecurityException e) {
-            throw e// UncheckedException.throwAsUncheckedException(e)
-        } //catch (Exception e){
+        //} catch(NoSuchMethodException|MissingMethodException e) {
+        //    throw e
+            //new GradleScriptException(e.message, e.cause)
+        //} catch(SecurityException e) {
+        //    throw e// UncheckedException.throwAsUncheckedException(e)
+        //} //catch (Exception e){
             //throw
             //throw new GradleScriptException(e.message, e.cause)
         //}

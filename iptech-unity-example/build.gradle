@@ -1,9 +1,4 @@
 buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
     dependencies {
         classpath group: 'com.iptech.gradle', name: 'iptech-unity-plugin', version:'0.1.0'
     }
@@ -22,9 +17,9 @@ unity {
                 importProject()
                 runEditModeTests()
                 runPlayModeTests()
-                execUnityMethod('BuildScript.HelloWorld') { Task t ->
-                    t.outputs.dir('build') // this will give this task incremental support.. normally you would put your outputs here.
-                    t.doLast {
+                execUnityMethod('BuildScript.HelloWorld') {
+                    outputs.dir('build') // this will give this task incremental support.. normally you would put your outputs here.
+                    doLast {
                         println 'example of extending the task'
                     }
                 }

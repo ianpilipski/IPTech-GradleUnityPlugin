@@ -1,11 +1,16 @@
 rootProject.name = 'iptech-gradleunityplugin'
 include 'iptech-unity-plugin'
 
-String iptechXcodePlugin = '../IPTech-GradleXcodePlugin/iptech-xcode-plugin'
-if(file(iptechXcodePlugin).exists()) {
-    includeBuild(iptechXcodePlugin) {
-        dependencySubstitution {
-            substitute module('gradle.plugin.com.iptech.gradle:iptech-xcode-plugin') with project(':')
+Map<String,String> inc = [
+    'iptech-xcode-plugin': '../IPTech-GradleXcodePlugin/iptech-xcode-plugin',
+    'iptech-nunit-plugin': '../IPTech-GradleNunit'
+]
+inc.each { Map.Entry<String,String> kvp ->
+    if(file(kvp.value).exists()) {
+        includeBuild(kvp.value) {
+            dependencySubstitution {
+                substitute module("gradle.plugin.com.iptech.gradle:${kvp.key}") with project(':')
+            }
         }
     }
 }
