@@ -2,7 +2,9 @@ package com.iptech.gradle.unity.tasks
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.internal.MirrorUtil
+import kotlin.random.Random.Default
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
 import org.gradle.api.provider.Property

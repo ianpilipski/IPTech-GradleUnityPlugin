@@ -7,15 +7,19 @@ import com.iptech.gradle.unity.tasks.ExecUnity
 import org.gradle.api.Action
 import org.gradle.api.Task
 import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.Exec
 import org.gradle.util.ConfigureUtil
 
 class ExecUnityBuildStep implements BuildStep {
 
     @Override
     Iterable<String> getNames() {
-        return ['execUnity', 'execUnityMethod']
+        return ['execUnity', 'unityBuild']
     }
 
     @Override
@@ -23,41 +27,39 @@ class ExecUnityBuildStep implements BuildStep {
         return false
     }
 
-    Task execUnity(String taskPrefix, BuildConfig buildConfig, Closure execSpec) {
-        return createExecUnity(taskPrefix, buildConfig, ConfigureUtil.configureUsing(execSpec))
-    }
+    Task unityBuild(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+        Closure config = {
+            executeMethod = 'IPTech.UnityGradlePlugin.Commands.Build'
+            arguments.add('-developmentBuild')
+        } >> (configClosure?:{})
+        ExecUnity t = execUnity(taskPrefix, buildConfig, config)
 
-    Task execUnityMethod(String taskPrefix, BuildConfig buildConfig, String staticMethod, Closure configClosure) {
-        return createExecUnityMethod(taskPrefix, buildConfig, staticMethod, configClosure)
-    }
-
-    private Task createExecUnity(String taskPrefix, BuildConfig buildConfig, Action<? super ExecUnitySpec> execSpec) {
-        return buildConfig.unity.project.tasks.create(taskPrefix) {
-            inputs.files(project.provider({
-                ConfigurableFileTree ft = buildConfig.unity.mainUnityProjectFileTree.clone()
-                ft.setDir(buildConfig.buildCacheProjectPath)
-                return ft
-            }))
-
-            doLast {
-                buildConfig.execUnity(execSpec)
+        Provider<Directory> dp = t.outputDir.map {
+            if(t.buildTarget.get() == 'iOS') {
+                return it.dir('xcode-project')
+            } else {
+                return it.dir('gradle-project')
             }
         }
+
+        DirectoryProperty resultProjectDir = buildConfig.unity.project.objects.directoryProperty().value(dp)
+
+        buildConfig.ext.unityBuildOutput = resultProjectDir
+        t.ext.output = resultProjectDir
+        return t
     }
 
-    Task createExecUnityMethod(String taskPrefix, BuildConfig buildConfig, String staticMethod, Closure configureClosure) {
-        Closure additionalConfig = {
+    Task execUnity(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+        Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExecUnity) {
             projectPath = buildConfig.buildCacheProjectPath
             buildTarget = buildConfig.buildTarget
+            outputDir = buildConfig.buildDirectory.dir(taskPrefix)
+            logFile = outputDir.file('output.log')
             arguments.addAll([
-                '-batchmode', '-quit', '-nographics',
-                '-executeMethod', staticMethod
+                '-batchmode', '-quit', '-nographics'
             ])
-
-            inputs.files {
-                buildConfig.buildCacheProjectPath.asFileTree.matching(buildConfig.unity.unityProjectFilter.get())
-            }
         }
-        return buildConfig.unity.project.tasks.create(taskPrefix, ExecUnity.class, configureClosure >> additionalConfig )
+        t.configure(configClosure)
+        return t
     }
 }

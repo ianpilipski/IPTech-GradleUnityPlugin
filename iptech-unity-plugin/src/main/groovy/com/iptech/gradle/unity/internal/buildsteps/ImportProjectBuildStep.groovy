@@ -26,10 +26,8 @@ class ImportProjectBuildStep implements BuildStep {
             arguments = ['-batchmode', '-quit', '-nographics', '-silent-crashes']
             projectPath = buildConfig.buildCacheProjectPath
             buildTarget = buildConfig.buildTarget
-
-            inputs.files {
-                buildConfig.buildCacheProjectPath.asFileTree.matching(buildConfig.unity.unityProjectFilter.get())
-            }
+            outputDir = buildConfig.buildDirectory.dir(taskPrefix)
+            logFile = outputDir.file('output.log')
 
             outputs.dir {
                 buildConfig.buildCacheProjectPath.dir("Library/ScriptAssemblies")

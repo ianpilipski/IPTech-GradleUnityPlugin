@@ -23,7 +23,7 @@ abstract class BuildConfig {
 
     @Input final String name
     @Input abstract Property<String> getPlatform()
-    @Internal @Optional DomainObjectSet<Closure> steps
+    @Internal DomainObjectSet<Closure> steps
 
     @Inject
     BuildConfig(String name, UnityExtension unity, ObjectFactory objectFactory) {
@@ -59,31 +59,13 @@ abstract class BuildConfig {
 
     @Internal
     DirectoryProperty getBuildCacheProjectPath() {
-        DirectoryProperty retVal = objectFactory.directoryProperty()
-        retVal.value(unity.buildCachePath.map {
+        return objectFactory.directoryProperty().value(unity.buildCachePath.map {
             it.dir("Cached-${unity.productName.get().replaceAll(" ", "_")}-${name}")
         })
-        return retVal
     }
 
     @Internal
     DirectoryProperty getBuildDirectory() {
-        DirectoryProperty retVal = objectFactory.directoryProperty()
-        retVal.value(unity.buildDirectory.dir(this.name))
-        return retVal
-    }
-
-    @Internal
-    DirectoryProperty getLogDir() {
-        DirectoryProperty retVal = objectFactory.directoryProperty()
-        retVal.value(buildDirectory.dir('logs'))
-        return retVal
-    }
-
-    @Internal
-    DirectoryProperty getArtifactDir() {
-        DirectoryProperty retVal = objectFactory.directoryProperty()
-        retVal.value(buildDirectory.dir('artifacts'))
-        return retVal
+        return objectFactory.directoryProperty().value(unity.buildDirectory.dir(this.name))
     }
 }

@@ -3,10 +3,7 @@ package com.iptech.gradle.unity.internal.buildsteps
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.xcode.tasks.ExportArchive
-import com.iptech.gradle.xcode.tasks.XcodeBuild
 import org.gradle.api.Task
-import org.gradle.api.file.Directory
-import org.gradle.api.provider.Provider
 
 class ExportXcodeArchive implements BuildStep {
     @Override
@@ -23,6 +20,11 @@ class ExportXcodeArchive implements BuildStep {
         String taskPrefix, BuildConfig buildConfig,
         Closure config
     ) {
-        return buildConfig.unity.project.tasks.create(taskPrefix, ExportArchive.class, config)
+        Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExportArchive) {
+            archivePath = buildConfig.xcodeArchivePath
+            exportPath = buildConfig.buildDirectory.dir("${taskPrefix}")
+        }
+
+        return config==null ? t :  t.configure(config)
     }
 }

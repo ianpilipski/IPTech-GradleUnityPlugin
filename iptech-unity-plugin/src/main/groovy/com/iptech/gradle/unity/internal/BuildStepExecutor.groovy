@@ -49,76 +49,66 @@ class BuildStepExecutor {
 
     @Override
     Object invokeMethod(String name, Object args) {
-        if (!tryExecBuildStep(name, args)) {
-            throw new GradleException("No build step named ${name}, could be found.")
-        }
+        Task t = tryExecBuildStep(name, args)
+        if(t) return t
+
+        throw new GradleException("No build step named ${name}, could be found.")
     }
 
-    private Boolean tryExecBuildStep(String name, Object args) {
-        //try {
-            //println "tryExecBuildStep: ${name} args: $args"
-            if (buildStepManager.hasBuildStep(name)) {
-                BuildStep bs = buildStepManager.getBuildStep(name)
-                stepCount++
-                String stepString = "000${stepCount}".substring(stepCount.toString().length())
-                String taskName = "step_${stepString}_${buildConfig.name}_${name}"
+    private Task tryExecBuildStep(String name, Object args) {
+        if (buildStepManager.hasBuildStep(name)) {
+            BuildStep bs = buildStepManager.getBuildStep(name)
+            stepCount++
+            String stepString = "000${stepCount}".substring(stepCount.toString().length())
+            String taskName = "step_${stepString}_${buildConfig.name}_${name}"
 
-                Method m = bs.class.methods.find { it.name == name }
-                if(!m) throw new GradleException("BuildStep ${name} has bad code, the task generator could be found.")
+            Method m = bs.class.methods.find { it.name == name }
+            if(!m) throw new GradleException("BuildStep ${name} has bad code, the task generator could not be found.")
 
-                Integer index = 0
-                List<Object> typedArgs = [ taskName, buildConfig ]
-                m.parameterTypes.each {
-                    println "parameterType ${it}"
-                    if (index>1) {
-                        if((index-2) < args.size()) {
-                            try {
-                                if (args[index - 2] instanceof GString) {
-                                    typedArgs.add(args[index - 2].toString())
-                                } else {
-                                    typedArgs.add(it.cast(args[index - 2]))
-                                }
-                            } catch (ClassCastException ex) {
-                                throw new GradleScriptException(ex.message + ", for method ${name}", ex.cause)
+            Integer index = 0
+            List<Object> typedArgs = [ taskName, buildConfig ]
+            m.parameterTypes.each {
+                //println "parameterType ${it}"
+                if (index>1) {
+                    if((index-2) < args.size()) {
+                        try {
+                            if (args[index - 2] instanceof GString) {
+                                typedArgs.add(args[index - 2].toString())
+                            } else {
+                                typedArgs.add(it.cast(args[index - 2]))
                             }
-                        } else {
-                            typedArgs.add(null)
+                        } catch (ClassCastException ex) {
+                            throw new GradleScriptException(ex.message + ", for method ${name}", ex.cause)
                         }
+                    } else {
+                        typedArgs.add(null)
                     }
-                    index++
                 }
-
-                Task retTask
-                try {
-                    retTask = bs.invokeMethod(name, typedArgs)
-                } catch(Exception e) {
-                    throw new GradleScriptException(e.message, e)
-                }
-
-
-                Iterable<Task> createdTasks = [retTask]
-                //Iterable<Task> createdTasks = bs.createTasks(name, taskName, buildConfig, args)
-                if (createdTasks) {
-                    createdTasks.each {
-                        endTask.dependsOn(it)
-                        it.dependsOn(lastTaskCreated)
-                        if (bs.isTestTask) {
-                            checkTask.dependsOn(it)
-                        }
-                    }
-                    lastTaskCreated = createdTasks.last()
-                }
-                return true
+                index++
             }
-            return false
-        //} catch(NoSuchMethodException|MissingMethodException e) {
-        //    throw e
-            //new GradleScriptException(e.message, e.cause)
-        //} catch(SecurityException e) {
-        //    throw e// UncheckedException.throwAsUncheckedException(e)
-        //} //catch (Exception e){
-            //throw
-            //throw new GradleScriptException(e.message, e.cause)
-        //}
+
+            Task retTask
+            try {
+                retTask = bs.invokeMethod(name, typedArgs)
+            } catch(Exception e) {
+                throw new GradleScriptException(e.message, e)
+            }
+
+
+            Iterable<Task> createdTasks = [retTask]
+            //Iterable<Task> createdTasks = bs.createTasks(name, taskName, buildConfig, args)
+            if (createdTasks) {
+                createdTasks.each {
+                    endTask.dependsOn(it)
+                    it.dependsOn(lastTaskCreated)
+                    if (bs.isTestTask) {
+                        checkTask.dependsOn(it)
+                    }
+                }
+                lastTaskCreated = createdTasks.last()
+            }
+            return createdTasks.last()
+        }
+        return null
     }
 }

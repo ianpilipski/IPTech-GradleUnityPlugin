@@ -1,6 +1,7 @@
 package com.iptech.gradle.unity
 
 import com.iptech.gradle.unity.api.BuildConfig
+import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.internal.BuildStepExecutor
 import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.buildsteps.ArchiveXcodeProject
@@ -10,6 +11,8 @@ import com.iptech.gradle.unity.internal.buildsteps.ImportProjectBuildStep
 import com.iptech.gradle.unity.internal.buildsteps.InstallProvisioningProfiles
 import com.iptech.gradle.unity.internal.buildsteps.RunTestsBuildStep
 import com.iptech.gradle.unity.tasks.ExecUnity
+import com.iptech.gradle.unity.tasks.ExtractUnityFiles
+import com.iptech.gradle.unity.tasks.InstallUnityFilesToProject
 import com.iptech.gradle.unity.tasks.MirrorProject
 import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.Action
@@ -22,6 +25,8 @@ class UnityPlugin implements Plugin<Project> {
     private Project project
     private UnityExtension unityExtension
     private Task validateConfigurationTask
+    private Task extractUnityFilesTask
+    private Task installUnityFilesTask
     private BuildStepManager buildStepManager
     private BuildConfig defaultBuildConfig
 
@@ -64,12 +69,14 @@ class UnityPlugin implements Plugin<Project> {
     }
 
     private void establishConventions() {
-        project.tasks.withType(ExecUnity).configureEach { ExecUnity t ->
+
+        project.tasks.withType(ExecUnity).configureEach { ExecUnitySpec t ->
             ignoreExitValue.convention(false)
             userName.convention(unityExtension.userName)
             password.convention(unityExtension.password)
             unityCmdPath.convention(unityExtension.unityCmdPath)
             environment.convention(project.provider( {[:] << System.getenv()}))
+            unityProjectFilter.convention(unityExtension.unityProjectFilter)
         }
         project.tasks.withType(ValidateConfig).configureEach {
             it.unity = unityExtension
@@ -86,6 +93,8 @@ class UnityPlugin implements Plugin<Project> {
         }
 
         validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig)
+        extractUnityFilesTask = project.tasks.create('extractUnityFiles', ExtractUnityFiles).dependsOn(validateConfigurationTask)
+        installUnityFilesTask = project.tasks.create('installUnityFiles', InstallUnityFilesToProject).dependsOn(extractUnityFilesTask)
 
         unityExtension.buildTypes.all this.&buildTypeAdded
     }
@@ -124,7 +133,7 @@ class UnityPlugin implements Plugin<Project> {
         buildTask.dependsOn(
             endTask.dependsOn(
                 mirrorTask.dependsOn(
-                    beginTask
+                    beginTask, installUnityFilesTask
                 )
             )
         )

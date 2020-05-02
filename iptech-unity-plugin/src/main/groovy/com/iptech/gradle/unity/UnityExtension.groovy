@@ -3,15 +3,10 @@ package com.iptech.gradle.unity
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.unity.api.ExecUnitySpec
-import com.iptech.gradle.unity.internal.BuildStepExecutor
 import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.UnityProjectSettings
 import com.iptech.gradle.unity.internal.executors.ExecUnityExecutor
-import com.iptech.gradle.unity.tasks.ExecUnity
-import com.iptech.gradle.unity.tasks.MirrorProject
-import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.*
-import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
@@ -20,11 +15,10 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.process.ExecResult
-import org.gradle.util.ConfigureUtil
 
 abstract class UnityExtension {
     private static final String GRADLE_PROPERTY_USERNAME = 'iptech.unity.username'
-    private static final String GRALDE_PROPERTY_PASSWORD = 'iptech.unity.password'
+    private static final String GRADLE_PROPERTY_PASSWORD = 'iptech.unity.password'
 
     @Internal final Project project
     private final ExecUnityExecutor execUnityExecutor
@@ -74,7 +68,7 @@ abstract class UnityExtension {
             return project.hasProperty(GRADLE_PROPERTY_USERNAME) ? project.getProperty(GRADLE_PROPERTY_USERNAME) : null
         }))
         password.convention(project.provider({
-            return project.hasProperty(GRALDE_PROPERTY_PASSWORD) ? project.getProperty(GRALDE_PROPERTY_PASSWORD) : null
+            return project.hasProperty(GRADLE_PROPERTY_PASSWORD) ? project.getProperty(GRADLE_PROPERTY_PASSWORD) : null
         }))
     }
 
