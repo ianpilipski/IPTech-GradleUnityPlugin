@@ -9,12 +9,14 @@ using UnityEngine;
 using System.Text;
 
 namespace IPTech.UnityGradlePlugin {
-    public class Build  {
+	public class Build {
 		BuildPlayerOptions buildPlayerOptions;
 
 		public Build(string outputPath, bool developmentBuild) {
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
+			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
+			buildPlayerOptions.options = buildPlayerOptions.options | BuildOptions.AcceptExternalModificationsToPlayer;
 			buildPlayerOptions.scenes = EditorBuildSettings.scenes.Select(s => s.path).ToArray();
 			buildPlayerOptions.target = EditorUserBuildSettings.activeBuildTarget;
 			buildPlayerOptions.locationPathName = ConfigureOutputLocation(outputPath);
@@ -22,38 +24,46 @@ namespace IPTech.UnityGradlePlugin {
 
 		string ConfigureOutputLocation(string outputPath) {
 			if (IsAndroidBuild()) {
-				if (!IsProjectExport()) {
+				if (!IsProjectExport(buildPlayerOptions.options)) {
 					if (!outputPath.EndsWith(".apk")) {
 						return Path.Combine(outputPath, PlayerSettings.productName + ".apk");
 					}
 				}
-				
-				return Path.Combine(outputPath, "gradle-project");
+				return outputPath;
 			}
 			return Path.Combine(outputPath, "xcode-project");
+		}
 
-			bool IsProjectExport() {
-				return buildPlayerOptions.options.HasFlag(BuildOptions.AcceptExternalModificationsToPlayer);
-			}
+		static bool IsProjectExport(BuildOptions options) {
+			return options.HasFlag(BuildOptions.AcceptExternalModificationsToPlayer);
+		}
 
-			bool IsAndroidBuild() {
-				return buildPlayerOptions.target == BuildTarget.Android;
-			}
+		bool IsAndroidBuild() {
+			return buildPlayerOptions.target == BuildTarget.Android;
 		}
 
 		public void Execute() {
 			BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
-			if(!DidBuildSucceed()) {
+			RenameOutputGradleProject();
+			if (!DidBuildSucceed()) {
 				throw new System.Exception("Build Failed");
 			}
 
 			bool DidBuildSucceed() {
 				return buildReport.summary.result == BuildResult.Succeeded;
 			}
+
+			void RenameOutputGradleProject() {
+				if (IsAndroidBuild() && IsProjectExport(buildPlayerOptions.options)) {
+					string pathToProject = Path.Combine(buildPlayerOptions.locationPathName, PlayerSettings.productName);
+					if (Directory.Exists(pathToProject)) {
+						Directory.Move(pathToProject, Path.Combine(buildPlayerOptions.locationPathName, "gradle-project"));
+					}
+				}
+			}
 		}
 
-		
-		public class AndroidBuildProcessor : IPreprocessBuildWithReport {
+		public class AndroidBuildProcessor : IPreprocessBuildWithReport, IPostGenerateGradleAndroidProject {
 			const string MSG_CREATE_GRADLE_SETTINGS = "Adding a placeholder settings.gradle file so this project will build without detecting the parent gradle project during warmup";
 			const string GRADLE_SETTINGS = "// placeholder settings.gradle file so that this gradle project does not detect the parent gradle project during warmup\n" +
 				"include 'StagingArea'\n" +
@@ -62,28 +72,40 @@ namespace IPTech.UnityGradlePlugin {
 
 			BuildReport buildReport;
 			public int callbackOrder { get { return int.MinValue; } }
-			
+
+			public void OnPostGenerateGradleAndroidProject(string path) {
+				try {
+					AddGradleWrapperToPath(path);
+				} catch (Exception e) {
+					if (!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
+						EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
+					} else {
+						EditorApplication.Exit(1);
+					}
+					throw new BuildFailedException(e.Message);
+				}
+			}
+
 			public void OnPreprocessBuild(BuildReport report) {
 				try {
 					buildReport = report;
 					if (IsAndroidBuild()) {
-						if (!IsProjectExport()) {
-							CreateTempGradleSettingsFile();
-						}
+						CreateTempGradleSettingsFile();
 					}
-				} catch(Exception) {
-					EditorApplication.Exit(1);
-					throw;
+				} catch (Exception e) {
+					if (!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
+						//EditorUtility.DisplayDialog("Error Preprocessing Project", e.Message, "Ok");
+					} else {
+						//EditorApplication.Exit(1);
+					}
+					throw new BuildFailedException(e);
 				}
 
 				bool IsAndroidBuild() {
 					return buildReport.summary.platform == BuildTarget.Android;
 				}
 
-				bool IsProjectExport() {
-					return buildReport.summary.options.HasFlag(BuildOptions.AcceptExternalModificationsToPlayer);
-				}
- 			}
+			}
 
 			void CreateTempGradleSettingsFile() {
 				if (!HasGradleSettingsFile()) {
@@ -102,6 +124,60 @@ namespace IPTech.UnityGradlePlugin {
 
 				string GetGradleSettingsPath() {
 					return Path.Combine(GetGradleSettingsDir(), "settings.gradle");
+				}
+			}
+
+			void AddGradleWrapperToPath(string outputPath) {
+				Console.Out.WriteLine("Adding gradle wrapper to exported project");
+				string gradleLauncherPath;
+
+				FindUnityGradleLauncher();
+				AddGradleSettingsFile();
+				ExecuteGradleWrapper();
+
+				void FindUnityGradleLauncher() {
+					string unityGradlePath = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer", "Tools", "gradle", "lib");
+					string[] launcherSearch = Directory.GetFiles(unityGradlePath, "gradle-launcher-*.jar");
+					if (launcherSearch != null && launcherSearch.Length > 0) {
+						gradleLauncherPath = launcherSearch[0];
+						return;
+					}
+					throw new FileNotFoundException("Could not find the unity gradle files");
+				}
+
+				void AddGradleSettingsFile() {
+					string gradleSettingsFile = Path.Combine(outputPath, "settings.gradle");
+					if (!File.Exists(gradleSettingsFile)) {
+						File.WriteAllText(gradleSettingsFile, "rootProject.name='" + PlayerSettings.productName + "'");
+					}
+				}
+
+				void ExecuteGradleWrapper() {
+					int exitCode = new ShellCommand().ExecBash(
+						string.Format("java -classpath \"{0}\" org.gradle.launcher.GradleMain wrapper", gradleLauncherPath),
+						outputPath
+					);
+
+					if (exitCode != 0) throw new Exception("Failed to generate gradle wrapper for exported project.");
+				}
+			}
+
+			class TmpFiles : IDisposable {
+				string[] filePaths;
+				public TmpFiles(params string[] filePaths) {
+					this.filePaths = filePaths;
+				}
+
+				public void Dispose() {
+					if (filePaths != null) {
+						foreach (var filePath in filePaths) {
+							try {
+								if (File.Exists(filePath)) {
+									File.Delete(filePath);
+								}
+							} catch { }
+						}
+					}
 				}
 			}
 		}

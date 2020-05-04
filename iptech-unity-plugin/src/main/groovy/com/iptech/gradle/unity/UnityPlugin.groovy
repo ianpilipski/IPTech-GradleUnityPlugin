@@ -4,18 +4,12 @@ import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.internal.BuildStepExecutor
 import com.iptech.gradle.unity.internal.BuildStepManager
-import com.iptech.gradle.unity.internal.buildsteps.ArchiveXcodeProject
-import com.iptech.gradle.unity.internal.buildsteps.ExecUnityBuildStep
-import com.iptech.gradle.unity.internal.buildsteps.ExportXcodeArchive
-import com.iptech.gradle.unity.internal.buildsteps.ImportProjectBuildStep
-import com.iptech.gradle.unity.internal.buildsteps.InstallProvisioningProfiles
-import com.iptech.gradle.unity.internal.buildsteps.RunTestsBuildStep
+import com.iptech.gradle.unity.internal.buildsteps.*
 import com.iptech.gradle.unity.tasks.ExecUnity
 import com.iptech.gradle.unity.tasks.ExtractUnityFiles
 import com.iptech.gradle.unity.tasks.InstallUnityFilesToProject
 import com.iptech.gradle.unity.tasks.MirrorProject
 import com.iptech.gradle.unity.tasks.ValidateConfig
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -66,6 +60,7 @@ class UnityPlugin implements Plugin<Project> {
         unityExtension.registerBuildStep(new ArchiveXcodeProject())
         unityExtension.registerBuildStep(new ExportXcodeArchive())
         unityExtension.registerBuildStep(new InstallProvisioningProfiles())
+        unityExtension.registerBuildStep(new BuildGradleProject())
     }
 
     private void establishConventions() {

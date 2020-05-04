@@ -35,12 +35,10 @@ class ExtractUnityFiles extends DefaultTask {
                 URL jar = ExtractUnityFiles.class.getProtectionDomain().getCodeSource().getLocation()
                 //jar.toString() begins with file:
                 //i want to trim it out...
-                println "jar=${jar}"
                 Path jarFile = Paths.get(jar.toString().substring("file:".length()))
 
                 ZipFileSystem fs = FileSystems.newFileSystem(jarFile, null)
                 Path basePath = fs.getPath(resourcePath)
-                println basePath.toString()
                 Files.walk(basePath).filter {
                     Files.isRegularFile(it)
                 }.each { p ->

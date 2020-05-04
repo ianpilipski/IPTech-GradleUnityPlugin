@@ -2,18 +2,11 @@ package com.iptech.gradle.unity.internal.buildsteps
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
-import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.tasks.ExecUnity
-import org.gradle.api.Action
 import org.gradle.api.Task
-import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Exec
-import org.gradle.util.ConfigureUtil
 
 class ExecUnityBuildStep implements BuildStep {
 
