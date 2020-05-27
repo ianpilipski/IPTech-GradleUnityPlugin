@@ -1,19 +1,14 @@
 package com.iptech.gradle.unity.api
 
 import com.iptech.gradle.unity.UnityExtension
-import org.gradle.api.Action
 import org.gradle.api.DomainObjectSet
-import org.gradle.api.GradleException
 import org.gradle.api.GradleScriptException
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.util.ConfigureUtil
 
 import javax.inject.Inject
 

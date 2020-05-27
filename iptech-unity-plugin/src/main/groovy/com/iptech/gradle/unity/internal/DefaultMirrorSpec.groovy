@@ -3,7 +3,6 @@ package com.iptech.gradle.unity.internal
 import com.iptech.gradle.unity.api.MirrorSpec
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet

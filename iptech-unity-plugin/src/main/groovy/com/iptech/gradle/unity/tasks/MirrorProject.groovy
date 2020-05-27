@@ -2,20 +2,16 @@ package com.iptech.gradle.unity.tasks
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.internal.MirrorUtil
-import kotlin.random.Random.Default
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
-import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 
-class MirrorProject extends DefaultTask {
-    @Nested
-    final Property<BuildConfig> buildConfig = project.objects.property(BuildConfig)
+abstract class MirrorProject extends DefaultTask {
+    @Internal abstract Property<BuildConfig> getBuildConfig()
 
     @InputFiles
     FileTree getUnityFileTree() {
