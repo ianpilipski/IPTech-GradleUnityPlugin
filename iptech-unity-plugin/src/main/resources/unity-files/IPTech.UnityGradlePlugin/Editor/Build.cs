@@ -75,7 +75,8 @@ namespace IPTech.UnityGradlePlugin {
 
 			public void OnPostGenerateGradleAndroidProject(string path) {
 				try {
-					AddGradleWrapperToPath(path);
+					string outputPath = CalculateWrapperOutputPath();
+					AddGradleWrapperToPath(outputPath);
 				} catch (Exception e) {
 					if (!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
 						EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
@@ -83,6 +84,14 @@ namespace IPTech.UnityGradlePlugin {
 						EditorApplication.Exit(1);
 					}
 					throw new BuildFailedException(e.Message);
+				}
+
+				string CalculateWrapperOutputPath() {
+#if UNITY_2019_1_OR_NEWER
+					return Path.GetFullPath(Path.Combine(path, ".."));
+#else
+					return path;
+#endif
 				}
 			}
 
@@ -128,7 +137,7 @@ namespace IPTech.UnityGradlePlugin {
 			}
 
 			void AddGradleWrapperToPath(string outputPath) {
-				Console.Out.WriteLine("Adding gradle wrapper to exported project");
+				Console.Out.WriteLine("Adding gradle wrapper to exported project at " + outputPath);
 				string gradleLauncherPath;
 
 				FindUnityGradleLauncher();
@@ -148,7 +157,13 @@ namespace IPTech.UnityGradlePlugin {
 				void AddGradleSettingsFile() {
 					string gradleSettingsFile = Path.Combine(outputPath, "settings.gradle");
 					if (!File.Exists(gradleSettingsFile)) {
-						File.WriteAllText(gradleSettingsFile, "rootProject.name='" + PlayerSettings.productName + "'");
+						File.WriteAllText(gradleSettingsFile,
+							"rootProject.name='" + PlayerSettings.productName + "'"
+#if UNITY_2019_1_OR_NEWER
+							+ "\ninclude \"unityLibrary\""
+							+ "\ninclude \"launcher\""
+#endif
+						);
 					}
 				}
 
