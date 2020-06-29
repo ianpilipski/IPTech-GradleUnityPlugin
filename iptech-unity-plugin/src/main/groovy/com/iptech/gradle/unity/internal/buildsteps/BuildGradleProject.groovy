@@ -21,8 +21,7 @@ class BuildGradleProject implements BuildStep {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, Exec) {
             workingDir buildConfig.unityBuildOutput
             executable '/bin/bash'
-            args '-l', '-f', 'gradlew', 'build', 'bundle',
-                "-Dorg.gradle.project.buildDir=${buildConfig.buildDirectory.get().dir(taskPrefix)}"
+            args '-l', '-f', 'gradlew', 'build', 'bundle'
         }
         t.configure(configClosure?:{})
         return t
