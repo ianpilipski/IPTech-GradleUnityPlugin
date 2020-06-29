@@ -29,7 +29,11 @@ namespace IPTech.UnityGradlePlugin {
 						return Path.Combine(outputPath, PlayerSettings.productName + ".apk");
 					}
 				}
+#if UNITY_2019_1_OR_NEWER
+				return Path.Combine(outputPath, "gradle-project");
+#else
 				return outputPath;
+#endif
 			}
 			return Path.Combine(outputPath, "xcode-project");
 		}
