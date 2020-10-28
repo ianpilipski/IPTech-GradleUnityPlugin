@@ -1,11 +1,10 @@
 buildscript {
     dependencies {
-        classpath group: 'com.iptech.gradle', name: 'iptech-unity-plugin', version:'0.1.0'
+        classpath group: 'com.iptech.gradle', name: 'iptech-unity-plugin'
     }
 }
 
 apply plugin: 'com.iptech.gradle.unity-plugin'
-
 
 unity {
     unityCmdPath = file('/Applications/Unity/HUB/Editor/2018.4.17f1/Unity.app/Contents/MacOS/Unity')

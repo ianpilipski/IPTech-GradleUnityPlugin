@@ -28,7 +28,7 @@ task setupPluginUpload {
     tasks.publishPlugins.dependsOn(delegate)
 }
 
-version = '0.1.0'
+version = '0.1.1'
 group 'com.iptech.gradle'
 description = 'A plugin that will execute scripts and build Unity projects'
 
@@ -52,5 +52,5 @@ gradlePlugin {
 dependencies {
     implementation gradleApi()
     implementation 'gradle.plugin.com.iptech.gradle:iptech-nunit-plugin:0.1.0'
-    implementation 'gradle.plugin.com.iptech.gradle:iptech-xcode-plugin:0.1.0'
+    implementation 'gradle.plugin.com.iptech.gradle:iptech-xcode-plugin:0.1.1'
 }
