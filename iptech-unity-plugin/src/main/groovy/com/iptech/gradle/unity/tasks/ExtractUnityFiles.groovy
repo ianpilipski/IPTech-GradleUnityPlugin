@@ -7,6 +7,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.*
 
 class ExtractUnityFiles extends DefaultTask {
@@ -32,10 +33,11 @@ class ExtractUnityFiles extends DefaultTask {
 
         if(uri.getScheme().contains('jar')) {
             try{
-                URL jar = ExtractUnityFiles.class.getProtectionDomain().getCodeSource().getLocation()
+                URI jarUri = ExtractUnityFiles.class.getProtectionDomain().getCodeSource().getLocation().toURI()
                 //jar.toString() begins with file:
                 //i want to trim it out...
-                Path jarFile = Paths.get(jar.toString().substring("file:".length()))
+                String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
+                Path jarFile = Paths.get(jarUriDecoded.substring("file:".length()))
 
                 ZipFileSystem fs = FileSystems.newFileSystem(jarFile, null)
                 Path basePath = fs.getPath(resourcePath)
