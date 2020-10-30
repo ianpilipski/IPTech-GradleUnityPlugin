@@ -28,7 +28,7 @@ task setupPluginUpload {
     tasks.publishPlugins.dependsOn(delegate)
 }
 
-version = '0.1.1'
+version = '0.1.2'
 group 'com.iptech.gradle'
 description = 'A plugin that will execute scripts and build Unity projects'
 
