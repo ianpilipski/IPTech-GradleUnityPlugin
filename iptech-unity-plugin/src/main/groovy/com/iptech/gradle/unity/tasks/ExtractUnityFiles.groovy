@@ -76,6 +76,6 @@ class ExtractUnityFiles extends DefaultTask {
         if(!file.parentFile.exists()) {
             project.mkdir(file.parentFile)
         }
-        file.text = is.text
+        file.write(is.text, StandardCharsets.UTF_8.toString())
     }
 }
