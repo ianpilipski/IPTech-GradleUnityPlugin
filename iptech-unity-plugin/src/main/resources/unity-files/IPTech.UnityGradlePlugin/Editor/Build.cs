@@ -82,6 +82,7 @@ namespace IPTech.UnityGradlePlugin {
 					string outputPath = CalculateWrapperOutputPath();
 					AddGradleWrapperToPath(outputPath);
 				} catch (Exception e) {
+					Debug.LogException(e);
 					if (!UnityEditorInternal.InternalEditorUtility.inBatchMode) {
 						EditorUtility.DisplayDialog("Error Post Processing Project", e.Message, "Ok");
 					} else {
@@ -150,6 +151,10 @@ namespace IPTech.UnityGradlePlugin {
 
 				void FindUnityGradleLauncher() {
 					string unityGradlePath = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer", "Tools", "gradle", "lib");
+					if (Application.platform == RuntimePlatform.LinuxEditor) {
+						unityGradlePath = Path.Combine(EditorApplication.applicationPath, "..", "Data", "PlaybackEngines", "AndroidPlayer", "Tools", "gradle", "lib");
+					}
+
 					string[] launcherSearch = Directory.GetFiles(unityGradlePath, "gradle-launcher-*.jar");
 					if (launcherSearch != null && launcherSearch.Length > 0) {
 						gradleLauncherPath = launcherSearch[0];
