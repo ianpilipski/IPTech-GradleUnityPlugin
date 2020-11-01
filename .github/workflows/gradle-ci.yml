@@ -25,7 +25,7 @@ jobs:
       run: chmod +x gradlew
     
     - name: Publish Snapshot
-        run: ./gradle publish
-        env:
-          USERNAME: ${{ github.actor }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./gradle publish
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
