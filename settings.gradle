@@ -1,5 +1,6 @@
 rootProject.name = 'iptech-gradleunityplugin'
 include 'iptech-unity-plugin'
+project(':iptech-unity-plugin').name = 'unity-plugin'
 
 Map<String,String> inc = [
     'iptech-xcode-plugin': '../IPTech-GradleXcodePlugin/iptech-xcode-plugin',
