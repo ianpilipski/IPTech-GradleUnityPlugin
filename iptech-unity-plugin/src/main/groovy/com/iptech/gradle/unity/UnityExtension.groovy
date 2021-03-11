@@ -48,6 +48,10 @@ abstract class UnityExtension {
         initializePropertyValues()
     }
 
+    void projectPath(String value) {
+        projectPath = project.layout.projectDirectory.dir(value)
+    }
+
     @InputFiles
     FileTree getMainUnityProjectFileTree() {
         return projectPath.asFileTree.matching(unityProjectFilter.get())
