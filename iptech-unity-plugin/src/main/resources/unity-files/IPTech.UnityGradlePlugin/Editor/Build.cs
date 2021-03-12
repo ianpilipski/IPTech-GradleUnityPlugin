@@ -16,7 +16,7 @@ namespace IPTech.UnityGradlePlugin {
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
 			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
-			buildPlayerOptions.options = buildPlayerOptions.options | BuildOptions.AcceptExternalModificationsToPlayer;
+			//buildPlayerOptions.options = buildPlayerOptions.options | BuildOptions.AcceptExternalModificationsToPlayer;
 			buildPlayerOptions.scenes = EditorBuildSettings.scenes.Select(s => s.path).ToArray();
 			buildPlayerOptions.target = EditorUserBuildSettings.activeBuildTarget;
 			buildPlayerOptions.locationPathName = ConfigureOutputLocation(outputPath);

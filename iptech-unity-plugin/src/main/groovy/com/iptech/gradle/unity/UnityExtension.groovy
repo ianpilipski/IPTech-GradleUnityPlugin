@@ -29,7 +29,7 @@ abstract class UnityExtension {
     @InputFile abstract RegularFileProperty getUnityCmdPath()
     @Input @Optional abstract Property<String> getUserName()
     @Input @Optional abstract Property<String> getPassword()
-    @OutputDirectory abstract DirectoryProperty getBuildCachePath()
+    abstract DirectoryProperty getBuildCachePath()
     @Input abstract Property<String> getBuildNumber()
     @Input @Optional abstract  Property<String> getBundleVersion()
     @Input @Optional abstract Property<String> getProductName()
