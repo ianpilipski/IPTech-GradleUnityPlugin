@@ -1,6 +1,5 @@
 package com.iptech.gradle.unity.tasks
 
-import com.sun.nio.zipfs.ZipFileSystem
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.Directory
@@ -43,7 +42,7 @@ class ExtractUnityFiles extends DefaultTask {
                 //String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
                 //Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
 
-                ZipFileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>())
+                FileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>())
                 Path basePath = fs.getPath(resourcePath)
                 Files.walk(basePath).filter {
                     Files.isRegularFile(it)
