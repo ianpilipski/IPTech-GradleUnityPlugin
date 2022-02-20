@@ -27,7 +27,7 @@ abstract class UnityExtension {
     private BuildStepManager buildStepManager
     private final UnityProjectSettings unityProjectSettings
 
-    @InputDirectory DirectoryProperty projectPath
+    @InputDirectory abstract DirectoryProperty getProjectPath()
     @InputFile abstract RegularFileProperty getUnityCmdPath()
     @Input @Optional abstract Property<String> getUserName()
     @Input @Optional abstract Property<String> getPassword()
@@ -43,7 +43,6 @@ abstract class UnityExtension {
     UnityExtension(Project project, BuildStepManager buildStepManager) {
         this.project = project
         this.buildStepManager = buildStepManager
-        this.projectPath = project.objects.property(DirectoryProperty.class)
         this.unityProjectSettings = project.objects.newInstance(UnityProjectSettings, projectPath)
         this.execUnityExecutor = project.objects.newInstance(ExecUnityExecutor, this)
         buildTypes = CreateBuildConfigContainerWithFactory(project)
@@ -53,22 +52,6 @@ abstract class UnityExtension {
 
     void projectPath(String value) {
         projectPath = project.layout.projectDirectory.dir(value)
-    }
-
-    void setProjectPath(String value) {
-        projectPath(value)
-    }
-
-    void setProjectPath(Provider<Directory> value) {
-        projectPath.Set(value)
-    }
-
-    Property<DirectoryProperty> getProjectPath() {
-        return projectPath
-    }
-
-    void unityCmdPath(String value) {
-        unityCmdPath = file(value)
     }
 
     @InputFiles
