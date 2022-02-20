@@ -37,7 +37,7 @@ class ExtractUnityFiles extends DefaultTask {
                 //jar.toString() begins with file:
                 //i want to trim it out...
                 String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
-                Path jarFile = Paths.get(jarUriDecoded.substring("file:".length()))
+                Path jarFile = Paths.get(jarUriDecoded.substring("file:/".length()))
 
                 ZipFileSystem fs = FileSystems.newFileSystem(jarFile, null)
                 Path basePath = fs.getPath(resourcePath)
