@@ -9,6 +9,8 @@ import org.gradle.api.tasks.TaskAction
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
+import org.apache.tools.ant.taskdefs.condition.Os
+
 
 class ExtractUnityFiles extends DefaultTask {
     @OutputDirectory
@@ -37,7 +39,8 @@ class ExtractUnityFiles extends DefaultTask {
                 //jar.toString() begins with file:
                 //i want to trim it out...
                 String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
-                Path jarFile = Paths.get(jarUriDecoded.substring("file:/".length()))
+                String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
+                Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
 
                 ZipFileSystem fs = FileSystems.newFileSystem(jarFile, null)
                 Path basePath = fs.getPath(resourcePath)
