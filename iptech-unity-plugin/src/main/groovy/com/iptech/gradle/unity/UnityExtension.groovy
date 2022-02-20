@@ -10,7 +10,9 @@ import org.gradle.api.*
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
@@ -25,11 +27,11 @@ abstract class UnityExtension {
     private BuildStepManager buildStepManager
     private final UnityProjectSettings unityProjectSettings
 
-    @InputDirectory abstract DirectoryProperty getProjectPath()
+    @InputDirectory DirectoryProperty projectPath
     @InputFile abstract RegularFileProperty getUnityCmdPath()
     @Input @Optional abstract Property<String> getUserName()
     @Input @Optional abstract Property<String> getPassword()
-    @Input @Optional abstract DirectoryProperty getBuildCachePath()
+    @Internal abstract DirectoryProperty getBuildCachePath()
     @Input abstract Property<String> getBuildNumber()
     @Input @Optional abstract  Property<String> getBundleVersion()
     @Input @Optional abstract Property<String> getProductName()
@@ -41,6 +43,7 @@ abstract class UnityExtension {
     UnityExtension(Project project, BuildStepManager buildStepManager) {
         this.project = project
         this.buildStepManager = buildStepManager
+        this.projectPath = project.objects.property(DirectoryProperty.class)
         this.unityProjectSettings = project.objects.newInstance(UnityProjectSettings, projectPath)
         this.execUnityExecutor = project.objects.newInstance(ExecUnityExecutor, this)
         buildTypes = CreateBuildConfigContainerWithFactory(project)
@@ -50,6 +53,22 @@ abstract class UnityExtension {
 
     void projectPath(String value) {
         projectPath = project.layout.projectDirectory.dir(value)
+    }
+
+    void setProjectPath(String value) {
+        projectPath(value)
+    }
+
+    void setProjectPath(Provider<Directory> value) {
+        projectPath.Set(value)
+    }
+
+    Property<DirectoryProperty> getProjectPath() {
+        return projectPath
+    }
+
+    void unityCmdPath(String value) {
+        unityCmdPath = file(value)
     }
 
     @InputFiles
