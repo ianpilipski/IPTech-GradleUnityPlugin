@@ -43,7 +43,7 @@ class ExtractUnityFiles extends DefaultTask {
                 //String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
                 //Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
 
-                ZipFileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>(), null)
+                ZipFileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>())
                 Path basePath = fs.getPath(resourcePath)
                 Files.walk(basePath).filter {
                     Files.isRegularFile(it)
