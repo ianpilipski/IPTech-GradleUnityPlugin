@@ -36,13 +36,14 @@ class ExtractUnityFiles extends DefaultTask {
         if(uri.getScheme().contains('jar')) {
             try{
                 URI jarUri = ExtractUnityFiles.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+                jarUri = URI.create("jar:" + jarUri.toString())
                 //jar.toString() begins with file:
                 //i want to trim it out...
-                String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
-                String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
-                Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
+                //String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
+                //String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
+                //Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
 
-                ZipFileSystem fs = FileSystems.newFileSystem(jarFile, classLoader)
+                ZipFileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>(), null)
                 Path basePath = fs.getPath(resourcePath)
                 Files.walk(basePath).filter {
                     Files.isRegularFile(it)
