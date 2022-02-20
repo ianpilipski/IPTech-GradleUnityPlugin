@@ -36,21 +36,19 @@ class ExtractUnityFiles extends DefaultTask {
             try{
                 URI jarUri = ExtractUnityFiles.class.getProtectionDomain().getCodeSource().getLocation().toURI()
                 jarUri = URI.create("jar:" + jarUri.toString())
-                //jar.toString() begins with file:
-                //i want to trim it out...
-                //String jarUriDecoded = URLDecoder.decode(jarUri.toString(), StandardCharsets.UTF_8.toString())
-                //String filePrefix = Os.isFamily(Os.FAMILY_WINDOWS) ? "file:/" : "file:"
-                //Path jarFile = Paths.get(jarUriDecoded.substring(filePrefix.length()))
 
-                FileSystem fs = FileSystems.newFileSystem(jarUri, new HashMap<>())
-                Path basePath = fs.getPath(resourcePath)
-                Files.walk(basePath).filter {
-                    Files.isRegularFile(it)
-                }.each { p ->
-                    getClass().getResourceAsStream(p.toString()).withStream {
-                        String relativePath = p.toString().substring(basePath.toString().length()+2)
-                        copyFilesFromInputStream(relativePath, it)
+                FileSystem fs = null
+                try {
+                    fs = FileSystems.newFileSystem(jarUri, new HashMap<>())
+                    Path basePath = fs.getPath(resourcePath)
+                    Files.walk(basePath).filter {
+                        Files.isRegularFile(it)
+                    }.each { p ->
+                        String relativePath = p.toString().substring(basePath.toString().length()+1)
+                        copyFileToDest(relativePath, p)
                     }
+                } finally {
+                    if(fs!=null) fs.close()
                 }
             } catch(IOException e) {
                 throw new GradleException(e.getMessage(), e)
@@ -63,10 +61,8 @@ class ExtractUnityFiles extends DefaultTask {
                 Files.walk(path).filter {
                     Files.isRegularFile(it)
                 }.each { p ->
-                    p.toFile().withInputStream {
-                        String relativePath = p.toString().substring(path.toString().length()+2)
-                        copyFilesFromInputStream(relativePath, it)
-                    }
+                    String relativePath = p.toString().substring(path.toString().length()+1)
+                    copyFileToDest(relativePath, p)
                 }
             } catch (IOException e) {
                 throw new GradleException(e.getMessage(), e)
@@ -74,11 +70,11 @@ class ExtractUnityFiles extends DefaultTask {
         }
     }
 
-    protected void copyFilesFromInputStream(String pathName, InputStream is) {
+    protected void copyFileToDest(String pathName, Path srcPath) {
         File file = outputDir.file(pathName).asFile
         if(!file.parentFile.exists()) {
             project.mkdir(file.parentFile)
         }
-        file.write(is.text, StandardCharsets.UTF_8.toString())
+        Files.copy(srcPath, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
     }
 }
