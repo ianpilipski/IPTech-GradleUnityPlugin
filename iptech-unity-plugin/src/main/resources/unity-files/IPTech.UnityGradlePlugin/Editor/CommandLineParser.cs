@@ -21,6 +21,10 @@ namespace IPTech.UnityGradlePlugin {
 					}
 				}
 			}
+			//if the last arg was a switch it will be here
+            if(token!=null) {
+                Arguments.Add(token, null);
+            }
 		}
 
 		public bool developmentBuild {
