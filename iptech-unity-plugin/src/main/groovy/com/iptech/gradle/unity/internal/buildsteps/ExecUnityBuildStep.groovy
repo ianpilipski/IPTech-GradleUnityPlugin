@@ -12,7 +12,7 @@ class ExecUnityBuildStep implements BuildStep {
 
     @Override
     Iterable<String> getNames() {
-        return ['execUnity', 'unityBuild']
+        return ['execUnity', 'unityBuild', 'unityBuildDev']
     }
 
     @Override
@@ -20,12 +20,20 @@ class ExecUnityBuildStep implements BuildStep {
         return false
     }
 
+    Task unityBuildDev(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+        def t = unityBuild(taskPrefix, buildConfig, { arguments.add('-developmentBuild') })
+        t.configure(configClosure)
+        return t
+    }
+
     Task unityBuild(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
-        Closure config = {
+        ExecUnity t = execUnity(taskPrefix, buildConfig, {
             executeMethod = 'IPTech.UnityGradlePlugin.Commands.Build'
-            arguments.add('-developmentBuild')
-        } >> (configClosure?:{})
-        ExecUnity t = execUnity(taskPrefix, buildConfig, config)
+            arguments.addAll(['-batchmode', '-quit', '-nographics'])
+        })
+        if(configClosure) {
+            t.configure(configClosure)
+        }
 
         Provider<Directory> dp = t.outputDir.map {
             if(t.buildTarget.get() == 'iOS') {
@@ -48,11 +56,10 @@ class ExecUnityBuildStep implements BuildStep {
             buildTarget = buildConfig.buildTarget
             outputDir = buildConfig.buildDirectory.dir(taskPrefix)
             logFile = outputDir.file('output.log')
-            arguments.addAll([
-                '-batchmode', '-quit', '-nographics'
-            ])
         }
-        t.configure(configClosure)
+        if(configClosure) {
+            t.configure(configClosure)
+        }
         return t
     }
 }
