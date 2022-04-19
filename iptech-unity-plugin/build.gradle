@@ -5,6 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
+Boolean isSnapshot = pluginVersion.endsWith('-SNAPSHOT')
+
 publishing {
     repositories {
         maven {
@@ -25,6 +27,16 @@ repositories {
     maven {
         url "https://plugins.gradle.org/m2/"
     }
+    if(isSnapshot) {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ianpilipski/IPTech-GradleUnityPlugin")
+            credentials {
+                username = 'ianpilipski'
+                password = '3c64364dc56cd72a36fd9efc539cf813b9d056fd' //public-read-packages token
+            }
+        }
+    }
 }
 
 //allow publish key/secret override from environment variable
@@ -42,7 +54,7 @@ task setupPluginUpload {
     tasks.publishPlugins.dependsOn(delegate)
 }
 
-version = '0.1.5-SNAPSHOT'
+version = pluginVersion
 group 'com.iptech.gradle'
 description = 'A plugin that will execute scripts and build Unity projects'
 
@@ -64,7 +76,10 @@ gradlePlugin {
 }
 
 dependencies {
+    def prodPrefx = isSnapshot ? "" : "gradle.plugin."
+    def snapShotPostFix = isSnapshot ? "-SNAPSHOT" : ""
+
     implementation gradleApi()
     implementation 'gradle.plugin.com.iptech.gradle:iptech-nunit-plugin:0.1.0'
-    implementation 'gradle.plugin.com.iptech.gradle:iptech-xcode-plugin:0.1.1'
+    implementation "${prodPrefx}com.iptech.gradle:xcode-plugin:0.1.2${snapShotPostFix}"
 }

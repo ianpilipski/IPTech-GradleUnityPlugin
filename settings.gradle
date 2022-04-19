@@ -1,16 +1,26 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+    }
+}
+
 rootProject.name = 'iptech-gradleunityplugin'
 include 'iptech-unity-plugin'
-project(':iptech-unity-plugin').name = 'unity-plugin'
 
-Map<String,String> inc = [
-    'iptech-xcode-plugin': '../IPTech-GradleXcodePlugin/iptech-xcode-plugin',
-    'iptech-nunit-plugin': '../IPTech-GradleNunit'
-]
-inc.each { Map.Entry<String,String> kvp ->
-    if(file(kvp.value).exists()) {
-        includeBuild(kvp.value) {
-            dependencySubstitution {
-                substitute module("gradle.plugin.com.iptech.gradle:${kvp.key}") with project(':')
+if(true) {
+    Map<String, String> inc = [
+            'xcode-plugin': '../IPTech-GradleXcodePlugin/xcode-plugin',
+            'nunit-plugin': '../IPTech-GradleNunit'
+    ]
+    inc.each { Map.Entry<String, String> kvp ->
+        if (file(kvp.value).exists()) {
+            println "Including local project ${kvp.key} (${kvp.value})"
+            includeBuild(kvp.value) {
+                dependencySubstitution {
+                    substitute module("com.iptech.gradle:${kvp.key}") with project(':')
+                    substitute module("gradle.plugin.com.iptech.gradle:${kvp.key}") with project(':')
+                }
             }
         }
     }
