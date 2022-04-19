@@ -32,8 +32,8 @@ repositories {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/ianpilipski/IPTech-GradleXCodePlugin")
             credentials {
-                username = 'ianpilipski'
-                password = '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' //public-read-packages token
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
             }
         }
     }
