@@ -30,7 +30,7 @@ repositories {
     if(isSnapshot) {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ianpilipski/IPTech-GradleUnityPlugin")
+            url = uri("https://maven.pkg.github.com/ianpilipski/IPTech-GradleXCodePlugin")
             credentials {
                 username = 'ianpilipski'
                 password = '3c64364dc56cd72a36fd9efc539cf813b9d056fd' //public-read-packages token
