@@ -6,7 +6,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.iptech.gradle', name: 'iptech-unity-plugin'
+        classpath group: 'com.iptech.gradle', name: 'unity-plugin'
     }
 }
 

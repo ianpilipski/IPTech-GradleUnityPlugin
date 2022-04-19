@@ -6,7 +6,7 @@ pluginManagement {
 }
 
 rootProject.name = 'iptech-gradleunityplugin'
-include 'iptech-unity-plugin'
+include 'unity-plugin'
 
 if(true) {
     Map<String, String> inc = [
