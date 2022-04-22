@@ -11,7 +11,8 @@ include 'unity-plugin'
 if(true) {
     Map<String, String> inc = [
             'xcode-plugin': '../IPTech-GradleXcodePlugin/xcode-plugin',
-            'nunit-plugin': '../IPTech-GradleNunit'
+            'nunit-plugin': '../IPTech-GradleNunit',
+            'encrypt-plugin': '../IPTech-GradleEncryptPlugin/encrypt-plugin'
     ]
     inc.each { Map.Entry<String, String> kvp ->
         if (file(kvp.value).exists()) {

@@ -6,6 +6,7 @@ import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.UnityProjectSettings
 import com.iptech.gradle.unity.internal.executors.ExecUnityExecutor
+import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.*
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
@@ -93,5 +94,10 @@ abstract class UnityExtension {
 
     ExecResult exec(ExecUnitySpec action) {
         return execUnityExecutor.exec(action)
+    }
+
+    Task dependsOn(final Object... paths) {
+        //add depends on the first unity task
+        project.validateUnityConfiguration.dependsOn(paths)
     }
 }

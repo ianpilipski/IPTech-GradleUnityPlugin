@@ -18,16 +18,20 @@ class InstallProvisioningProfiles implements BuildStep {
     }
 
     Task installProvisioningProfiles(String taskPrefex, BuildConfig buildConfig, Closure config ) {
-        return buildConfig.unity.project.tasks.create(taskPrefex) {
+        return buildConfig.unity.project.tasks.create(taskPrefex) { Task t ->
+            ext.from = 'provisioning-profiles'
+
             doLast {
                 buildConfig.unity.project.xcode.unInstallProvisioningProfiles {
-                    provisioningProfiles = buildConfig.unity.project.fileTree( 'provisioning-profiles') { include '*.mobileprovision.remove' }
+                    provisioningProfiles = buildConfig.unity.project.fileTree(t.from) { include '*.mobileprovision.remove' }
                 }
                 buildConfig.unity.project.xcode.installProvisioningProfiles {
-                    provisioningProfiles = buildConfig.unity.project.fileTree( 'provisioning-profiles') { include '*.mobileprovision' }
+                    provisioningProfiles = buildConfig.unity.project.fileTree(t.from) { include '*.mobileprovision' }
                 }
             }
         }.configure(config?:{})
     }
+
+
 
 }
