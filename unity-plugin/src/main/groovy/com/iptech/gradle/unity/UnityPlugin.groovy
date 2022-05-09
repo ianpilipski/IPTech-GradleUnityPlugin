@@ -61,6 +61,7 @@ class UnityPlugin implements Plugin<Project> {
         unityExtension.registerBuildStep(new ExportXcodeArchive())
         unityExtension.registerBuildStep(new InstallProvisioningProfiles())
         unityExtension.registerBuildStep(new BuildGradleProject())
+        unityExtension.registerBuildStep(new TestFlightSteps())
     }
 
     private void establishConventions() {

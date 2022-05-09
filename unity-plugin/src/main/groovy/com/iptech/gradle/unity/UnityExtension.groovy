@@ -22,6 +22,8 @@ import org.gradle.process.ExecResult
 abstract class UnityExtension {
     private static final String GRADLE_PROPERTY_USERNAME = 'iptech.unity.username'
     private static final String GRADLE_PROPERTY_PASSWORD = 'iptech.unity.password'
+    private static final String GRADLE_PROPERTY_APPLEUSERNAME = 'iptech.unity.appleusername'
+    private static final String GRADLE_PROPERTY_APPLEPASSWORD = 'iptech.unity.applepassword'
 
     @Internal final Project project
     private final ExecUnityExecutor execUnityExecutor
@@ -32,6 +34,8 @@ abstract class UnityExtension {
     @InputFile abstract RegularFileProperty getUnityCmdPath()
     @Input @Optional abstract Property<String> getUserName()
     @Input @Optional abstract Property<String> getPassword()
+    @Input @Optional abstract Property<String> getAppleUserName()
+    @Input @Optional abstract Property<String> getApplePassword()
     @Internal abstract DirectoryProperty getBuildCachePath()
     @Input abstract Property<String> getBuildNumber()
     @Input @Optional abstract  Property<String> getBundleVersion()
@@ -76,6 +80,12 @@ abstract class UnityExtension {
         }))
         password.convention(project.provider({
             return project.hasProperty(GRADLE_PROPERTY_PASSWORD) ? project.getProperty(GRADLE_PROPERTY_PASSWORD) : null
+        }))
+        appleUserName.convention(project.provider( {
+            return project.hasProperty(GRADLE_PROPERTY_APPLEUSERNAME) ? project.getProperty(GRADLE_PROPERTY_APPLEUSERNAME) : null
+        }))
+        applePassword.convention(project.provider( {
+            return project.hasProperty(GRADLE_PROPERTY_APPLEPASSWORD) ? project.getProperty(GRADLE_PROPERTY_APPLEPASSWORD) : null
         }))
     }
 
