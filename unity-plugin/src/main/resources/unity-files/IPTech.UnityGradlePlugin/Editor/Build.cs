@@ -10,9 +10,11 @@ using System.Text;
 
 namespace IPTech.UnityGradlePlugin {
 	public class Build {
+		int buildNumber;
 		BuildPlayerOptions buildPlayerOptions;
 
-		public Build(string outputPath, bool developmentBuild) {
+		public Build(string outputPath, bool developmentBuild, int buildNumber) {
+			this.buildNumber = buildNumber;
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
 			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
@@ -47,6 +49,8 @@ namespace IPTech.UnityGradlePlugin {
 		}
 
 		public void Execute() {
+			PlayerSettings.iOS.buildNumber = buildNumber.ToString();
+			PlayerSettings.Android.bundleVersionCode = buildNumber;
 			BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
 			RenameOutputGradleProject();
 			if (!DidBuildSucceed()) {

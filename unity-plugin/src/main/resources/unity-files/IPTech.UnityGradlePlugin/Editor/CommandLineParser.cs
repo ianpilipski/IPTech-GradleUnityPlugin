@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace IPTech.UnityGradlePlugin {
 	public class CommandLineParser {
@@ -46,5 +47,18 @@ namespace IPTech.UnityGradlePlugin {
 				throw new System.ArgumentNullException("-outputPath must be specified with a valid path");
 			}
 		}
+
+		public int buildNumber {
+			get {
+				if(Arguments.TryGetValue("-buildNumber", out string val)) {
+					return int.Parse(val);
+				}
+				if(UnityEngine.Application.platform == UnityEngine.RuntimePlatform.Android) {
+					return PlayerSettings.Android.bundleVersionCode;
+				} else {
+					return int.Parse(PlayerSettings.iOS.buildNumber);
+				}
+			}
+        }
     }
 }

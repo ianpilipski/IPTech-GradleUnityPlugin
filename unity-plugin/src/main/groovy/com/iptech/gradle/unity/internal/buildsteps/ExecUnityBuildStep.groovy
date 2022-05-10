@@ -56,6 +56,8 @@ class ExecUnityBuildStep implements BuildStep {
             buildTarget = buildConfig.buildTarget
             outputDir = buildConfig.buildDirectory.dir(taskPrefix)
             logFile = outputDir.file('output.log')
+            arguments.add('-buildNumber')
+            arguments.add(buildConfig.unity.buildNumber)
         }
         if(configClosure) {
             t.configure(configClosure)
