@@ -13,7 +13,9 @@ namespace IPTech.UnityGradlePlugin {
 		int buildNumber;
 		BuildPlayerOptions buildPlayerOptions;
 
-		public Build(string outputPath, bool developmentBuild, int buildNumber) {
+		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false) {
+			BuildPostProcessor.UsesNonExemptEncryption = usesNonExemptEncryption;
+
 			this.buildNumber = buildNumber;
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;

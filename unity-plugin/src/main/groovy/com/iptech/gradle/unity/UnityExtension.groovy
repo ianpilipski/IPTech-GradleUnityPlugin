@@ -42,6 +42,7 @@ abstract class UnityExtension {
     @Input @Optional abstract Property<String> getProductName()
     @OutputDirectory abstract DirectoryProperty getBuildDirectory()
     @Internal abstract Property<PatternFilterable> getUnityProjectFilter()
+    @Input @Optional abstract Property<Boolean> getExemptEncryption()
 
     @Nested final NamedDomainObjectContainer<BuildConfig> buildTypes
 
@@ -75,6 +76,7 @@ abstract class UnityExtension {
         bundleVersion.convention(unityProjectSettings.getBundleVersion())
         buildCachePath.convention(project.layout.projectDirectory.dir('build-cache'))
         buildDirectory.convention(project.layout.buildDirectory.dir('unity'))
+        exemptEncryption.convention(false)
         userName.convention(project.provider({
             return project.hasProperty(GRADLE_PROPERTY_USERNAME) ? project.getProperty(GRADLE_PROPERTY_USERNAME) : null
         }))

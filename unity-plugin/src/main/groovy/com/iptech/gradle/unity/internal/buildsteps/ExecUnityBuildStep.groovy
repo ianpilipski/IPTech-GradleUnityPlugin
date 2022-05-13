@@ -30,6 +30,9 @@ class ExecUnityBuildStep implements BuildStep {
         ExecUnity t = execUnity(taskPrefix, buildConfig, {
             executeMethod = 'IPTech.UnityGradlePlugin.Commands.Build'
             arguments.addAll(['-batchmode', '-quit', '-nographics'])
+            if(buildConfig.unity.exemptEncryption.get()) {
+                arguments.addAll(['-exemptEncryption'])
+            }
         })
         if(configClosure) {
             t.configure(configClosure)

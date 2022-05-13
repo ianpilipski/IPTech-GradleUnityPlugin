@@ -60,5 +60,11 @@ namespace IPTech.UnityGradlePlugin {
 				}
 			}
         }
+
+		public bool usesNonExemptEncryption {
+			get {
+				return Arguments.ContainsKey("-exemptEncryption");
+            }
+        }
     }
 }
