@@ -1,9 +1,10 @@
-#if UNITY_IOS
-using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+#if UNITY_IOS
+using System.IO;
 using UnityEditor.iOS.Xcode;
+#endif
 
 namespace IPTech.UnityGradlePlugin {
     public class BuildPostProcessor : IPostprocessBuildWithReport {
@@ -12,6 +13,12 @@ namespace IPTech.UnityGradlePlugin {
         public int callbackOrder { get { return 0; } }
 
         public void OnPostprocessBuild(BuildReport report) {
+            OnPostProcessBuildIOS(report);
+        }
+
+
+        void OnPostProcessBuildIOS(BuildReport report) {
+#if UNITY_IOS
             if(UsesNonExemptEncryption) {
                 if(report.summary.platform == BuildTarget.iOS) {
                     string plistPath = report.summary.outputPath + "/Info.plist";
@@ -25,7 +32,8 @@ namespace IPTech.UnityGradlePlugin {
                     File.WriteAllText(plistPath, plist.WriteToString()); // Override Info.plist
                 }
             }
+#endif
         }
     }
 }
-#endif
+
