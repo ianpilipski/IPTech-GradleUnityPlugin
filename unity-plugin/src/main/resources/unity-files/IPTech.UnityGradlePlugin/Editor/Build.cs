@@ -12,11 +12,13 @@ namespace IPTech.UnityGradlePlugin {
 	public class Build {
 		int buildNumber;
 		BuildPlayerOptions buildPlayerOptions;
+		string bundleIdentifier;
 
-		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false) {
+		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false, string bundleIdentifier = null) {
 			BuildPostProcessor.UsesNonExemptEncryption = usesNonExemptEncryption;
 
-			this.buildNumber = buildNumber;
+			this.buildNumber = Mathf.Max(1, buildNumber);
+			this.bundleIdentifier = bundleIdentifier;
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
 			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
@@ -53,6 +55,9 @@ namespace IPTech.UnityGradlePlugin {
 		public void Execute() {
 			PlayerSettings.iOS.buildNumber = buildNumber.ToString();
 			PlayerSettings.Android.bundleVersionCode = buildNumber;
+			if(!string.IsNullOrEmpty(bundleIdentifier)) {
+				PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, bundleIdentifier);
+			}
 			BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
 			RenameOutputGradleProject();
 			if (!DidBuildSucceed()) {

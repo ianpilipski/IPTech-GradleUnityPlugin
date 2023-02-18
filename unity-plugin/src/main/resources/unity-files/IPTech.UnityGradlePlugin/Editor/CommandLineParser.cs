@@ -66,5 +66,14 @@ namespace IPTech.UnityGradlePlugin {
 				return Arguments.ContainsKey("-exemptEncryption");
             }
         }
+
+		public string bundleIdentifier {
+			get {
+				if(Arguments.TryGetValue("-bundleIdentifier", out string val)) {
+					return val;
+				}
+				return null;
+			}
+		}
     }
 }

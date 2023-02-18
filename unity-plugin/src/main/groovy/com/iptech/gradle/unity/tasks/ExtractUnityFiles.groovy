@@ -71,9 +71,12 @@ class ExtractUnityFiles extends DefaultTask {
     }
 
     protected void copyFileToDest(String pathName, Path srcPath) {
+        while(pathName.startsWith('/')) {
+            pathName = pathName.substring(1)
+        }
         File file = outputDir.file(pathName).asFile
         if(!file.parentFile.exists()) {
-            project.mkdir(file.parentFile)
+            Files.createDirectories(file.parentFile.toPath())
         }
         Files.copy(srcPath, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
     }

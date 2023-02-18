@@ -3,6 +3,7 @@ package com.iptech.gradle.unity.internal.buildsteps
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.unity.tasks.ExecUnity
+import com.iptech.gradle.unity.tasks.UnityBuildTask
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
@@ -27,13 +28,20 @@ class ExecUnityBuildStep implements BuildStep {
     }
 
     Task unityBuild(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
-        ExecUnity t = execUnity(taskPrefix, buildConfig, {
+        UnityBuildTask t =  buildConfig.unity.project.tasks.create(taskPrefix, UnityBuildTask) {
+            projectPath = buildConfig.buildCacheProjectPath
+            buildTarget = buildConfig.buildTarget
+            outputDir = buildConfig.buildDirectory.dir(taskPrefix)
+            logFile = outputDir.file('output.log')
+            arguments.add('-buildNumber')
+            arguments.add(buildConfig.unity.buildNumber)
+
             executeMethod = 'IPTech.UnityGradlePlugin.Commands.Build'
             arguments.addAll(['-batchmode', '-quit', '-nographics'])
             if(buildConfig.unity.exemptEncryption.get()) {
-                arguments.addAll(['-exemptEncryption'])
+                arguments.add('-exemptEncryption')
             }
-        })
+        }
         if(configClosure) {
             t.configure(configClosure)
         }
@@ -52,6 +60,7 @@ class ExecUnityBuildStep implements BuildStep {
         t.ext.output = resultProjectDir
         return t
     }
+
 
     Task execUnity(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExecUnity) {
