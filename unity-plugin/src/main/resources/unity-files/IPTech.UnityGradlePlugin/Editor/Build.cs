@@ -90,6 +90,9 @@ namespace IPTech.UnityGradlePlugin {
 				IPTechBuildInfo buildInfo = Resources.Load<IPTechBuildInfo>("IPTechBuildInfo");
 				if(buildInfo == null) {
 					buildInfo = ScriptableObject.CreateInstance<IPTechBuildInfo>();
+					if(!Directory.Exists(Path.Combine("Assets", "Resources"))) {
+						Directory.CreateDirectory(Path.Combine("Assets", "Resources"));
+					}
 					AssetDatabase.CreateAsset(buildInfo, Path.Combine("Assets", "Resources", "IPTechBuildInfo.asset"));
                 }
 				string buildNumber = PlayerSettings.iOS.buildNumber;
