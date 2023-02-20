@@ -101,6 +101,7 @@ namespace IPTech.UnityGradlePlugin {
                 }
 
 				buildInfo.BuildNumber = buildNumber;
+				EditorUtility.SetDirty(buildInfo);
 				AssetDatabase.SaveAssets();
             }
         }
