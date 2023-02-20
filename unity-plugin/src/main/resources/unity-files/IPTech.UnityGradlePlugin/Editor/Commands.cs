@@ -7,7 +7,14 @@ namespace IPTech.UnityGradlePlugin {
 		public static void Build() {
 			try {
 				var args = new CommandLineParser(Environment.GetCommandLineArgs());
-				new Build(args.outputPath, args.developmentBuild, args.buildNumber, args.usesNonExemptEncryption, args.bundleIdentifier).Execute();
+				new Build(
+					args.outputPath, 
+					args.developmentBuild, 
+					args.buildNumber, 
+					args.usesNonExemptEncryption, 
+					args.bundleIdentifier,
+					args.productName
+					).Execute();
 			} catch(Exception e) {
 				Console.Error.WriteLine(e.ToString());
 				EditorApplication.Exit(1);

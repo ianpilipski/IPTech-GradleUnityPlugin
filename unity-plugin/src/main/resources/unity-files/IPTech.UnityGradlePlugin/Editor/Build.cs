@@ -13,12 +13,14 @@ namespace IPTech.UnityGradlePlugin {
 		int buildNumber;
 		BuildPlayerOptions buildPlayerOptions;
 		string bundleIdentifier;
+		string productName;
 
-		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false, string bundleIdentifier = null) {
+		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false, string bundleIdentifier = null, string productName = null) {
 			BuildPostProcessor.UsesNonExemptEncryption = usesNonExemptEncryption;
 
 			this.buildNumber = Mathf.Max(1, buildNumber);
 			this.bundleIdentifier = bundleIdentifier;
+			this.productName = productName;
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
 			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
@@ -32,7 +34,7 @@ namespace IPTech.UnityGradlePlugin {
 			if (IsAndroidBuild()) {
 				if (!IsProjectExport(buildPlayerOptions.options)) {
 					if (!outputPath.EndsWith(".apk")) {
-						return Path.Combine(outputPath, PlayerSettings.productName + ".apk");
+						return Path.Combine(outputPath, (string.IsNullOrEmpty(productName) ? PlayerSettings.productName : productName) + ".apk");
 					}
 				}
 #if UNITY_2019_1_OR_NEWER
@@ -58,6 +60,9 @@ namespace IPTech.UnityGradlePlugin {
 			if(!string.IsNullOrEmpty(bundleIdentifier)) {
 				PlayerSettings.SetApplicationIdentifier(EditorUserBuildSettings.selectedBuildTargetGroup, bundleIdentifier);
 			}
+			if(!string.IsNullOrEmpty(productName)) {
+				PlayerSettings.productName = productName;
+			}
 			BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
 			RenameOutputGradleProject();
 			if (!DidBuildSucceed()) {
@@ -77,6 +82,25 @@ namespace IPTech.UnityGradlePlugin {
 				}
 			}
 		}
+
+		public class BuildProcessor : IPreprocessBuildWithReport {
+            public int callbackOrder => 0;
+
+            public void OnPreprocessBuild(BuildReport report) {
+				IPTechBuildInfo buildInfo = Resources.Load<IPTechBuildInfo>("IPTechBuildInfo");
+				if(buildInfo == null) {
+					buildInfo = ScriptableObject.CreateInstance<IPTechBuildInfo>();
+					AssetDatabase.CreateAsset(buildInfo, Path.Combine("Assets", "Resources", "IPTechBuildInfo.asset"));
+                }
+				string buildNumber = PlayerSettings.iOS.buildNumber;
+				if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android) {
+					buildNumber = PlayerSettings.Android.bundleVersionCode.ToString();
+                }
+
+				buildInfo.BuildNumber = buildNumber;
+				AssetDatabase.SaveAssets();
+            }
+        }
 
 		public class AndroidBuildProcessor : IPreprocessBuildWithReport, IPostGenerateGradleAndroidProject {
 			const string MSG_CREATE_GRADLE_SETTINGS = "Adding a placeholder settings.gradle file so this project will build without detecting the parent gradle project during warmup";

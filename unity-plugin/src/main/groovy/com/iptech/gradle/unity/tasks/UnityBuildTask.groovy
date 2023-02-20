@@ -16,12 +16,18 @@ import org.gradle.process.ExecResult
 
 abstract class UnityBuildTask extends ExecUnity {
     @Input @Optional abstract Property<String> getBundleIdentifier()
+    @Input @Optional abstract Property<String> getProductName()
 
     UnityBuildTask() {
         project.afterEvaluate { 
             String bundleId = bundleIdentifier.getOrNull()
             if(bundleId?.size()>0) {
                 arguments.addAll(['-bundleIdentifier', bundleId])
+            }
+
+            String prodName = productName.getOrNull()
+            if(prodName?.size()>0) {
+                arguments.addAll(['-productName', prodName])
             }
         }
     }

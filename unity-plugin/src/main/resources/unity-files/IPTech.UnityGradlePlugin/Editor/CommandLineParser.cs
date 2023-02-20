@@ -75,5 +75,14 @@ namespace IPTech.UnityGradlePlugin {
 				return null;
 			}
 		}
+
+		public string productName {
+			get {
+				if(Arguments.TryGetValue("-productName", out string val)) {
+					return val;
+				}
+				return null;
+			}
+		}
     }
 }
