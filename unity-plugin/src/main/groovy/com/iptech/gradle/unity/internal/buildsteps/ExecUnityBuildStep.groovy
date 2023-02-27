@@ -67,7 +67,7 @@ class ExecUnityBuildStep implements BuildStep {
             projectPath = buildConfig.buildCacheProjectPath
             buildTarget = buildConfig.buildTarget
             outputDir = buildConfig.buildDirectory.dir(taskPrefix)
-            logFile = outputDir.file('output.log')
+            logFile = buildConfig.buildDirectory.file("${taskPrefix}/output.log")
             arguments.add('-buildNumber')
             arguments.add(buildConfig.unity.buildNumber)
         }
