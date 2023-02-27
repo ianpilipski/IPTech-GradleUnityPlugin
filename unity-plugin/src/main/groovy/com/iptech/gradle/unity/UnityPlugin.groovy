@@ -91,6 +91,7 @@ class UnityPlugin implements Plugin<Project> {
         validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig)
         extractUnityFilesTask = project.tasks.create('extractUnityFiles', ExtractUnityFiles).dependsOn(validateConfigurationTask)
         installUnityFilesTask = project.tasks.create('installUnityFiles', InstallUnityFilesToProject).dependsOn(extractUnityFilesTask)
+        installUnityFilesTask.onlyIf { project.unity.installCSharpFiles.get() }
 
         unityExtension.buildTypes.all this.&buildTypeAdded
     }
@@ -129,7 +130,7 @@ class UnityPlugin implements Plugin<Project> {
         buildTask.dependsOn(
             endTask.dependsOn(
                 mirrorTask.dependsOn(
-                    beginTask, installUnityFilesTask
+                    beginTask, validateConfigurationTask, installUnityFilesTask
                 )
             )
         )

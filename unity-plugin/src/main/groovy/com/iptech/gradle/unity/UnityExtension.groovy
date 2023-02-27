@@ -43,7 +43,7 @@ abstract class UnityExtension {
     @OutputDirectory abstract DirectoryProperty getBuildDirectory()
     @Internal abstract Property<PatternFilterable> getUnityProjectFilter()
     @Input @Optional abstract Property<Boolean> getExemptEncryption()
-
+    @Input @Optional abstract Property<Boolean> getInstallCSharpFiles()
     @Nested final NamedDomainObjectContainer<BuildConfig> buildTypes
 
     UnityExtension(Project project, BuildStepManager buildStepManager) {
@@ -77,6 +77,8 @@ abstract class UnityExtension {
         buildCachePath.convention(project.layout.projectDirectory.dir('build-cache'))
         buildDirectory.convention(project.layout.buildDirectory.dir('unity'))
         exemptEncryption.convention(false)
+        installCSharpFiles.convention(true)
+        
         userName.convention(project.provider({
             return project.hasProperty(GRADLE_PROPERTY_USERNAME) ? project.getProperty(GRADLE_PROPERTY_USERNAME) : null
         }))
