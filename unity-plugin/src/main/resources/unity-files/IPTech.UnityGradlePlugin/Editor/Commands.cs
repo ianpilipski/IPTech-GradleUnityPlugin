@@ -13,7 +13,9 @@ namespace IPTech.UnityGradlePlugin {
 					args.buildNumber, 
 					args.usesNonExemptEncryption, 
 					args.bundleIdentifier,
-					args.productName
+					args.productName,
+					args.buildAsAppBundle,
+					args.keyStoreSettingsFile
 					).Execute();
 			} catch(Exception e) {
 				Console.Error.WriteLine(e.ToString());

@@ -21,13 +21,15 @@ class ExecUnityBuildStep implements BuildStep {
         return false
     }
 
-    Task unityBuildDev(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task unityBuildDev(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         def t = unityBuild(taskPrefix, buildConfig, { arguments.add('-developmentBuild') })
-        t.configure(configClosure)
+        if(configClosure) {
+            t.configure(configClosure)
+        }
         return t
     }
 
-    Task unityBuild(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task unityBuild(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         UnityBuildTask t =  buildConfig.unity.project.tasks.create(taskPrefix, UnityBuildTask) {
             projectPath = buildConfig.buildCacheProjectPath
             buildTarget = buildConfig.buildTarget
@@ -62,7 +64,7 @@ class ExecUnityBuildStep implements BuildStep {
     }
 
 
-    Task execUnity(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task execUnity(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExecUnity) {
             projectPath = buildConfig.buildCacheProjectPath
             buildTarget = buildConfig.buildTarget

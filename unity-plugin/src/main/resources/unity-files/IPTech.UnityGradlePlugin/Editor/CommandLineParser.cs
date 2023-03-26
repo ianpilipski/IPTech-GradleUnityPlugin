@@ -84,5 +84,20 @@ namespace IPTech.UnityGradlePlugin {
 				return null;
 			}
 		}
+
+		public bool buildAsAppBundle {
+			get {
+				return Arguments.TryGetValue("-buildAsAppBundle", out string _);
+            }
+        }
+
+		public string keyStoreSettingsFile {
+			get {
+				if(Arguments.TryGetValue("-keyStoreSettings", out string val)) {
+					return val;
+                }
+				return null;
+            }
+        }
     }
 }

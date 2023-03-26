@@ -17,7 +17,7 @@ class InstallProvisioningProfiles implements BuildStep {
         return ['installProvisioningProfiles']
     }
 
-    Task installProvisioningProfiles(String taskPrefex, BuildConfig buildConfig, Closure config ) {
+    Task installProvisioningProfiles(String taskPrefex, BuildConfig buildConfig, Closure config =null) {
         def proj = buildConfig.unity.project
 
         return proj.tasks.create(taskPrefex) { Task t ->

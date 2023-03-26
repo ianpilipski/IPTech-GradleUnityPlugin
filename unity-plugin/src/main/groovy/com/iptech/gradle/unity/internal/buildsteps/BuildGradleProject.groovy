@@ -17,7 +17,7 @@ class BuildGradleProject implements BuildStep {
         return false
     }
 
-    Task buildGradleProject(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task buildGradleProject(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, Exec) {
             workingDir buildConfig.unityBuildOutput
             executable '/bin/bash'

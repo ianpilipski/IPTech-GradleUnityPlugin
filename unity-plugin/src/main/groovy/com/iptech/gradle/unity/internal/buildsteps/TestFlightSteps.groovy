@@ -18,7 +18,7 @@ class TestFlightSteps implements BuildStep {
         return ['uploadToTestFlight', 'validateTestFlight']
     }
 
-    Task uploadToTestFlight(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task uploadToTestFlight(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, TestFlightUpload) {
             it.password = buildConfig.unity.applePassword
             it.userName = buildConfig.unity.appleUserName
@@ -31,7 +31,7 @@ class TestFlightSteps implements BuildStep {
         return t
     }
 
-    Task validateTestFlight(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task validateTestFlight(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, TestFlightValidate) {
             it.password = buildConfig.unity.applePassword
             it.userName = buildConfig.unity.appleUserName

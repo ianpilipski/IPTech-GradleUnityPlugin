@@ -15,26 +15,66 @@ namespace IPTech.UnityGradlePlugin {
 		string bundleIdentifier;
 		string productName;
 
-		public Build(string outputPath, bool developmentBuild, int buildNumber, bool usesNonExemptEncryption = false, string bundleIdentifier = null, string productName = null) {
+		public Build(
+			string outputPath,
+			bool developmentBuild,
+			int buildNumber,
+			bool usesNonExemptEncryption = false,
+			string bundleIdentifier = null,
+			string productName = null,
+			bool buildAsAppBundle = false,
+			string keyStoreSettingsFile = null) {
+
+			SetKeyStoreSettings(keyStoreSettingsFile);
+
 			BuildPostProcessor.UsesNonExemptEncryption = usesNonExemptEncryption;
 
 			this.buildNumber = Mathf.Max(1, buildNumber);
 			this.bundleIdentifier = bundleIdentifier;
 			this.productName = productName;
+			EditorUserBuildSettings.buildAppBundle = buildAsAppBundle;
+			
 			buildPlayerOptions = new BuildPlayerOptions();
 			buildPlayerOptions.options = developmentBuild ? BuildOptions.Development : BuildOptions.None;
 			//buildPlayerOptions.options |= EditorUserBuildSettings.exportAsGoogleAndroidProject ? BuildOptions.AcceptExternalModificationsToPlayer : BuildOptions.None;
 			//buildPlayerOptions.options = buildPlayerOptions.options | BuildOptions.AcceptExternalModificationsToPlayer;
 			buildPlayerOptions.scenes = EditorBuildSettings.scenes.Select(s => s.path).ToArray();
 			buildPlayerOptions.target = EditorUserBuildSettings.activeBuildTarget;
-			buildPlayerOptions.locationPathName = ConfigureOutputLocation(outputPath);
+			buildPlayerOptions.locationPathName = ConfigureOutputLocation(outputPath, buildAsAppBundle);
 		}
 
-		string ConfigureOutputLocation(string outputPath) {
+        private void SetKeyStoreSettings(string keyStoreSettingsFile) {
+			if(!string.IsNullOrEmpty(keyStoreSettingsFile)) {
+				KeyStoreSettings settings = JsonUtility.FromJson<KeyStoreSettings>(File.ReadAllText(keyStoreSettingsFile));
+			
+				PlayerSettings.Android.useCustomKeystore = true;
+				PlayerSettings.Android.keystoreName = keyStoreSettingsFile.Substring(0, keyStoreSettingsFile.Length - ".settings".Length);
+				PlayerSettings.Android.keystorePass = settings.KeyStorePass;
+				PlayerSettings.Android.keyaliasName = settings.KeyStoreAlias;
+				PlayerSettings.Android.keyaliasPass = settings.KeyStoreAliasPass;
+            } else {
+				PlayerSettings.Android.useCustomKeystore = false;
+            }
+        }
+
+		[Serializable]
+		class KeyStoreSettings {
+			public string KeyStorePass;
+			public string KeyStoreAlias;
+			public string KeyStoreAliasPass;
+        }
+
+        string ConfigureOutputLocation(string outputPath, bool isAppBundle) {
 			if (IsAndroidBuild()) {
 				if (!IsProjectExport(buildPlayerOptions.options)) {
-					if (!outputPath.EndsWith(".apk")) {
-						return Path.Combine(outputPath, (string.IsNullOrEmpty(productName) ? PlayerSettings.productName : productName) + ".apk");
+					if(isAppBundle) {
+						if(!outputPath.EndsWith(".aab")) {
+							return Path.Combine(outputPath, (string.IsNullOrEmpty(productName) ? PlayerSettings.productName : productName) + ".aab");
+                        }
+					} else {
+						if(!outputPath.EndsWith(".apk")) {
+							return Path.Combine(outputPath, (string.IsNullOrEmpty(productName) ? PlayerSettings.productName : productName) + ".apk");
+						}
 					}
 				}
 #if UNITY_2019_1_OR_NEWER

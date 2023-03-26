@@ -17,7 +17,7 @@ class ArchiveXcodeProject implements BuildStep {
         return ['archiveXcodeProject']
     }
 
-    Task archiveXcodeProject(String taskPrefix, BuildConfig buildConfig, Closure configClosure) {
+    Task archiveXcodeProject(String taskPrefix, BuildConfig buildConfig, Closure configClosure=null) {
         buildConfig.ext.xcodeArchivePath = buildConfig.buildDirectory.dir("${taskPrefix}/xcode-archive.xcarchive")
 
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, Archive) {

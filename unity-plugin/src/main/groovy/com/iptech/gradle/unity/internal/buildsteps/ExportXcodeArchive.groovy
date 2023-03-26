@@ -18,7 +18,7 @@ class ExportXcodeArchive implements BuildStep {
 
     Task exportXcodeArchive(
         String taskPrefix, BuildConfig buildConfig,
-        Closure config
+        Closure config = null
     ) {
         Task t = buildConfig.unity.project.tasks.create(taskPrefix, ExportArchive) {
             archivePath = buildConfig.xcodeArchivePath

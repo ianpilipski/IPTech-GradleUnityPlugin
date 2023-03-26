@@ -106,6 +106,10 @@ abstract class UnityExtension {
         buildStepManager.registerBuildStep(buildStep)
     }
 
+    void registerBuildStepFunction(String name, Closure func, Boolean isTestTask=false) {
+        buildStepManager.registerBuildStepFunction(name, func, isTestTask)
+    }
+
     ExecResult exec(ExecUnitySpec action) {
         return execUnityExecutor.exec(action)
     }

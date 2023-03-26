@@ -38,10 +38,6 @@ abstract class BuildConfig {
         }
     }
 
-    /*void steps(Action<? super BuildConfig> action) {
-        this.steps.add(action)
-    }*/
-
     @Internal
     Provider<String> getBuildTarget() {
         return platform.map {
