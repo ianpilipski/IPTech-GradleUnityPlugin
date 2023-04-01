@@ -36,16 +36,16 @@ class BuildStepExecutor {
         this.checkTask = checkTask
 
         buildStepManager.registeredBuildStepFuncs.each {
-            buildConfig.ext[it.key] = createBuildStepFuncWrapper(it.value.func, it.value.isTestTask)
+            buildConfig.ext[it.key] = createBuildStepFuncWrapper(it.key, it.value.func, it.value.isTestTask)
         }
     }
 
-    Closure createBuildStepFuncWrapper(Closure buildStepFunc, Boolean isTestTask) {
+    Closure createBuildStepFuncWrapper(String buildStepName, Closure buildStepFunc, Boolean isTestTask) {
         buildStepFunc.curry("one", "two")
         return { Object... args ->
             stepCount++
             String stepString = "000${stepCount}".substring(stepCount.toString().length())
-            String taskName = "step_${stepString}_${buildConfig.name}_${name}"
+            String taskName = "step_${stepString}_${buildConfig.name}_${buildStepName}"
 
             def inner = buildStepFunc.curry(taskName, buildConfig)
             def retTask = inner.call(args)
