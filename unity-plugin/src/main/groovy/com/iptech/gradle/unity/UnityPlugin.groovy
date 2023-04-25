@@ -62,6 +62,7 @@ class UnityPlugin implements Plugin<Project> {
         unityExtension.registerBuildStep(new InstallProvisioningProfiles())
         unityExtension.registerBuildStep(new BuildGradleProject())
         unityExtension.registerBuildStep(new TestFlightSteps())
+        unityExtension.registerBuildStep(new TaskBuildStep())
     }
 
     private void establishConventions() {
