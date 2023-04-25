@@ -224,10 +224,18 @@ namespace IPTech.UnityGradlePlugin {
 				Console.Out.WriteLine("Adding gradle wrapper to exported project at " + outputPath);
 				string gradleLauncherPath;
 
-				FindUnityGradleLauncher();
-				AddGradleSettingsFile();
-				ExecuteGradleWrapper();
+				if(!AlreadyHasGradleWrapper()) {
+					FindUnityGradleLauncher();
+					AddGradleSettingsFile();
+					ExecuteGradleWrapper();
+				} else {
+					Console.Out.WriteLine("Already detected gradle wrapper at exported project " + outputPath);
+				}
 
+				bool AlreadyHasGradleWrapper() {
+					return File.Exists(Path.Combine(outputPath, "gradlew"));
+				}
+				
 				void FindUnityGradleLauncher() {
 					string unityGradlePath = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer", "Tools", "gradle", "lib");
 					if (Application.platform == RuntimePlatform.LinuxEditor) {
