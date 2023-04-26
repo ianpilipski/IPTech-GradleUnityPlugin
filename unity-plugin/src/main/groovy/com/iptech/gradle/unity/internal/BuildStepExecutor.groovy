@@ -41,7 +41,6 @@ class BuildStepExecutor {
     }
 
     Closure createBuildStepFuncWrapper(String buildStepName, Closure buildStepFunc, Boolean isTestTask) {
-        buildStepFunc.curry("one", "two")
         return { Object... args ->
             stepCount++
             String stepString = "000${stepCount}".substring(stepCount.toString().length())
