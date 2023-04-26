@@ -31,14 +31,19 @@ class TaskBuildStep implements BuildStep {
         def p = buildConfig.unity.project
         String tName = taskPrefix + (taskName ?: "");
         Task t = type==null ? p.tasks.create(tName) : p.tasks.create(tName, type)
-        t.ext.outputDir = "${p.buildDir}/unity/${tName}"
+        t.ext.outputDir = "${p.buildDir}/unity/${buildConfig.name}/${tName}"
+
 
         if(t instanceof org.gradle.api.tasks.Exec) {
+            def tmpStream = new java.io.ByteArrayOutputStream()
             t.doFirst {
-                p.mkdir(outputDir)
+                if(standardOutput == tmpStream) {
+                    p.mkdir(outputDir)
+                    standardOutput = new FileOutputStream("${outputDir}/output.log")
+                }
             }
             t.workingDir = t.ext.outputDir
-            t.standardOutput = new FileOutputStream("${t.ext.outputDir}/output.log")
+            t.standardOutput = tmpStream
         }
 
         if(configClosure) {
