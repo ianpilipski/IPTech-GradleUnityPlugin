@@ -1,7 +1,7 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version '0.11.0'
+    id 'com.gradle.plugin-publish' version '1.1.0'
     id 'maven-publish'
 }
 
@@ -20,13 +20,12 @@ publishing {
     }
 }
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = 1.8
+}
 
 repositories {
-    jcenter()
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
+    gradlePluginPortal()
     if(isSnapshot) {
         maven {
             name = "GitHubPackages"
@@ -58,19 +57,17 @@ version = pluginVersion
 group 'com.iptech.gradle'
 description = 'A plugin that will execute scripts and build Unity projects'
 
-pluginBundle {
+gradlePlugin {
     website = 'https://github.com/ianpilipski/IPTech-GradleUnityPlugin'
     vcsUrl = 'https://github.com/ianpilipski/IPTech-GradleUnityPlugin'
-    tags = ['unity', 'unity3d', 'iptech']
-}
-
-gradlePlugin {
+    
     plugins {
         unityPlugin {
             id = 'com.iptech.gradle.unity-plugin'
             displayName = 'IPTech Unity Plugin'
             description = 'A plugin that will execute scripts and build Unity projects'
             implementationClass = 'com.iptech.gradle.unity.UnityPlugin'
+            tags = ['unity', 'unity3d', 'iptech']
         }
     }
 }

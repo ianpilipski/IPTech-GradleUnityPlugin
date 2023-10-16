@@ -19,8 +19,8 @@ if(true) {
             println "Including local project ${kvp.key} (${kvp.value})"
             includeBuild(kvp.value) {
                 dependencySubstitution {
-                    substitute module("com.iptech.gradle:${kvp.key}") with project(':')
-                    substitute module("gradle.plugin.com.iptech.gradle:${kvp.key}") with project(':')
+                    substitute module("com.iptech.gradle:${kvp.key}") using project(':')
+                    substitute module("gradle.plugin.com.iptech.gradle:${kvp.key}") using project(':')
                 }
             }
         }
