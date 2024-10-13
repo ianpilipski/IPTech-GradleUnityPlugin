@@ -70,7 +70,7 @@ class ExecUnityExecutor {
             args = argList
             ignoreExitValue = (spec.ignoreExitValue.isPresent() ? spec.ignoreExitValue.get() : false)
             if(spec.environment.isPresent()) {
-                environment = spec.environment.get()
+                environment(spec.environment.get())
             }
         }
     }
