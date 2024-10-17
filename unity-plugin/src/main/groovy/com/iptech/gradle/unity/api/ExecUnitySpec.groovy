@@ -30,4 +30,5 @@ interface ExecUnitySpec {
     @Input @Optional abstract Property<Boolean> getIgnoreExitValue()
     @Input @Optional abstract MapProperty<String,String> getEnvironment()
 
+    void environment(String key, String value)
 }

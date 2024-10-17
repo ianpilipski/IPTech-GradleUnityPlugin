@@ -26,6 +26,11 @@ abstract class ExecUnity extends DefaultTask implements ExecUnitySpec {
         return projectPath.get().asFileTree.matching(unityProjectFilter.get())
     }
 
+    @Override
+    void environment(String key, String value) {
+        this.environment.put(key, value);
+    }
+
     @TaskAction
     ExecResult execute() {
         execResult.set(exec())
