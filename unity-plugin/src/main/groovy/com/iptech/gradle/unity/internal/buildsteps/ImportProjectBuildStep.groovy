@@ -2,9 +2,7 @@ package com.iptech.gradle.unity.internal.buildsteps
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
-import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.tasks.ExecUnity
-import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 

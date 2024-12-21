@@ -3,17 +3,10 @@ package com.iptech.gradle.unity.internal.buildsteps
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import com.iptech.gradle.unity.tasks.RunTests
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFile
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
-import com.iptech.gradle.unity.tasks.ExecUnity
-
-import javax.inject.Inject
 
 class RunTestsBuildStep implements BuildStep {
 

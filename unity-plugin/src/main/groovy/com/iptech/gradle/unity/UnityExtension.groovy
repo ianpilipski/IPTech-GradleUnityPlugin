@@ -6,14 +6,11 @@ import com.iptech.gradle.unity.api.ExecUnitySpec
 import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.UnityProjectSettings
 import com.iptech.gradle.unity.internal.executors.ExecUnityExecutor
-import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.*
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet

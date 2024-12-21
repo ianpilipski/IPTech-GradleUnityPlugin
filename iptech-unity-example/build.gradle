@@ -16,6 +16,7 @@ unity {
                 runPlayModeTests()
                 execUnity() {
                     executeMethod = 'BuildScript.HelloWorld'
+                    arguments = ['-quit', '-batchmode']
                     outputs.dir('build') // this will give this task incremental support.. normally you would put your outputs here.
                     doLast {
                         println 'example of extending the task'

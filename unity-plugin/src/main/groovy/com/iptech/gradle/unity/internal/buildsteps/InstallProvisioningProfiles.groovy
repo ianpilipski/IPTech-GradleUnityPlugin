@@ -3,7 +3,6 @@ package com.iptech.gradle.unity.internal.buildsteps
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
 import org.gradle.api.Task
-import com.iptech.gradle.xcode.tasks.InstallProvisioningProfiles as XcodeInstallProvisioningProfiles
 
 class InstallProvisioningProfiles implements BuildStep {
 

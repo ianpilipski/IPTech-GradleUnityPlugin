@@ -4,17 +4,11 @@ import com.iptech.gradle.unity.UnityExtension
 import com.iptech.gradle.unity.api.ExecUnitySpec
 
 import org.gradle.api.Action
-import org.gradle.api.Project
-import org.gradle.api.file.Directory
 import org.gradle.api.file.FileSystemLocation
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Exec
 import org.gradle.process.ExecOperations
 import org.gradle.process.ExecResult
-import org.gradle.process.ExecSpec
-
 import javax.inject.Inject
 
 

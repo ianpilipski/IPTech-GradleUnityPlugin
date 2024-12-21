@@ -6,8 +6,6 @@ import com.iptech.gradle.unity.internal.BuildStepExecutor
 import com.iptech.gradle.unity.internal.BuildStepManager
 import com.iptech.gradle.unity.internal.buildsteps.*
 import com.iptech.gradle.unity.tasks.ExecUnity
-import com.iptech.gradle.unity.tasks.ExtractUnityFiles
-import com.iptech.gradle.unity.tasks.InstallUnityFilesToProject
 import com.iptech.gradle.unity.tasks.MirrorProject
 import com.iptech.gradle.unity.tasks.ValidateConfig
 import org.gradle.api.Plugin
@@ -19,8 +17,6 @@ class UnityPlugin implements Plugin<Project> {
     private Project project
     private UnityExtension unityExtension
     private Task validateConfigurationTask
-    private Task extractUnityFilesTask
-    private Task installUnityFilesTask
     private BuildStepManager buildStepManager
     private BuildConfig defaultBuildConfig
 
@@ -81,8 +77,6 @@ class UnityPlugin implements Plugin<Project> {
     }
 
     private void createTasks() {
-        //addBuildAllRule(project)
-
         project.tasks.create('deleteUnityBuildCache', Delete) {
             group 'Build'
             description 'Deletes the unity build cache directory'
@@ -90,29 +84,8 @@ class UnityPlugin implements Plugin<Project> {
         }
 
         validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig)
-        extractUnityFilesTask = project.tasks.create('extractUnityFiles', ExtractUnityFiles).dependsOn(validateConfigurationTask)
-        installUnityFilesTask = project.tasks.create('installUnityFiles', InstallUnityFilesToProject).dependsOn(extractUnityFilesTask)
-        installUnityFilesTask.onlyIf { project.unity.installCSharpFiles.get() }
 
         unityExtension.buildTypes.all this.&buildTypeAdded
-    }
-
-    private void addBuildAllRule(Project project) {
-        UnityExtension config = this
-
-        String rulePrefix = 'buildAll'
-        project.tasks.addRule("Pattern: ${rulePrefix}[platform]") { String taskName ->
-            if (taskName.startsWith(rulePrefix)) {
-                String platform = taskName.substring(rulePrefix.length())
-                project.tasks.create(taskName) {
-                    if(platform) {
-                        dependsOn config.buildTypes.findAll { it.platform == platform }.collect { "build${it.name}" }.toArray()
-                    } else {
-                        dependsOn project.unity.buildTypes.collect { "build${it.name}" }.toArray()
-                    }
-                }
-            }
-        }
     }
 
     protected void buildTypeAdded(BuildConfig bt) {
@@ -131,7 +104,7 @@ class UnityPlugin implements Plugin<Project> {
         buildTask.dependsOn(
             endTask.dependsOn(
                 mirrorTask.dependsOn(
-                    beginTask, validateConfigurationTask, installUnityFilesTask
+                    beginTask, validateConfigurationTask
                 )
             )
         )

@@ -2,10 +2,7 @@ package com.iptech.gradle.unity.internal.buildsteps
 
 import com.iptech.gradle.unity.api.BuildConfig
 import com.iptech.gradle.unity.api.BuildStep
-import com.iptech.gradle.xcode.tasks.TestFlightUpload
-import com.iptech.gradle.xcode.tasks.TestFlightValidate
 import org.gradle.api.Task
-import java.io.FileOutputStream
 
 class TaskBuildStep implements BuildStep {
 

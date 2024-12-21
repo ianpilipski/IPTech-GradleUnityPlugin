@@ -4,11 +4,8 @@ import com.iptech.gradle.unity.UnityExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.Directory
 import org.gradle.api.file.FileSystemLocation
-import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.file.DefaultFilePropertyFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Nested
