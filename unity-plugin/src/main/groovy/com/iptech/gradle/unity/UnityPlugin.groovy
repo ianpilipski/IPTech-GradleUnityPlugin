@@ -79,10 +79,22 @@ class UnityPlugin implements Plugin<Project> {
     }
 
     private void createTasks() {
-        project.tasks.create('deleteUnityBuildCache', Delete) {
+        Task deleteBuildCacheTask = project.tasks.create('deleteUnityBuildCache', Delete) {
             group 'Build'
             description 'Deletes the unity build cache directory'
             delete unityExtension.buildCachePath
+        }
+
+        Task deleteSharedCacheTask = project.tasks.create('deleteSharedCache', Delete) {
+            group 'Build'
+            description 'Deletes the unity shared cache directory'
+            delete unityExtension.sharedCachePath
+        }
+
+        project.tasks.create('deleteAllCaches') {
+            group 'Build'
+            description 'Deletes the unity build cache and shared cache directories'
+            dependsOn deleteBuildCacheTask, deleteSharedCacheTask
         }
 
         validateConfigurationTask = project.tasks.create('validateUnityConfiguration', ValidateConfig)
