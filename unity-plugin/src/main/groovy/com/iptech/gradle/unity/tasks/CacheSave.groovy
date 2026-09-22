@@ -10,14 +10,21 @@ import org.gradle.api.tasks.Sync
 abstract class CacheSave extends Sync {
     @Internal abstract Property<BuildConfig> getBuildConfig()
     @Input abstract Property<String> getKey()
+    private int fileCount = 0
 
     CacheSave() {
         doFirst {
             if(!buildConfig.get().unity.sharedCachePath.isPresent()) {
                 throw new GradleException("unity.sharedCachePath must be set to use the cacheSave build step")
             }
+            fileCount = 0
+            println "Saving files to cache '${key.get()}'..."
         }
         from { buildConfig.get().buildCacheProjectPath }
         into { buildConfig.get().unity.sharedCachePath.get().dir(key.get()) }
+        eachFile { fileCount++ }
+        doLast {
+            println "Saved ${fileCount} file(s) to cache '${key.get()}'"
+        }
     }
 }
