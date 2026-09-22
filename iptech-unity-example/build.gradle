@@ -7,10 +7,23 @@ unity.registerBuildStepFunction("exampleOfAddingBuildStepClosure", { String task
 unity {
     unityCmdPath = file('/Applications/Unity/HUB/Editor/2022.3.31f1/Unity.app/Contents/MacOS/Unity')
     buildNumber = '0001'
+    sharedCachePath = file("${System.getProperty('user.home')}/.iptech-unity-shared-cache")
     buildTypes {
+        // Run manually (e.g. in CI after merges to main) to (re)warm the shared Library cache
+        PrewarmAndroidLibrary {
+            platform = 'Android'
+            steps {
+                importProject()
+                cacheSave {
+                    key = 'android-library'
+                    include 'Library/**'
+                }
+            }
+        }
         DebugAndroid {
             platform = 'Android'
             steps {
+                cacheRestore { key = 'android-library' }
                 importProject()
                 runEditModeTests()
                 runPlayModeTests()

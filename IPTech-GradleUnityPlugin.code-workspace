@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../IPTech-GradleXcodePlugin"
+		},
+		{
+			"path": "../IPTech-GradleEncryptPlugin"
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "disabled",
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}
